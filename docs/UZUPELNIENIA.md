@@ -180,6 +180,8 @@ Format: **nazwa:** warunek, potem opcje.
 
 ## 6. Zima i dni 11–36 w liczbach
 
+> **Nieaktualne od 8 listopada:** liczby i wyniki z tej sekcji zastępuje `narzedzia/ekonomia_sim2.py` i sekcja ekonomii w koncepcie.
+
 Policzone symulacją `narzedzia/ekonomia_zima_sim.py`: dni 1–36, jesień, zima, pierwszy Przypływ, 500 losowań na styl gry.
 
 **[zmiana] Poprawione liczby z sekcji „Ekonomia pierwszych 10 dni”.** Przy starych liczbach od 10. dnia na samo paliwo szły 4 z 7 par rąk. Osada nie mogła nic zbudować ani odłożyć na zimę, więc ginęła nawet przy dobrej grze.

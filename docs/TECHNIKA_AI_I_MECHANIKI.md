@@ -273,7 +273,7 @@ Frakcje ludzkie walczą tymi samymi klasami `Commander` i `Fighter` co gracz, z 
   - Legitymacja = średnie zadowolenie z praw liczone z odległości poglądów każdego człowieka od kursu.
   - Frakcje wewnętrzne = grupy ludzi o bliskich poglądach (k-średnie raz na kilka dni).
 - **Zdarzenia:** definicje w JSON (warunek, waga, opcje z efektami), losowane raz na dzień z puli spełniających warunek, z czasem odnowienia.
-- **Ekonomia pierwszych dni:** patrz skrypt `narzedzia/ekonomia_sim.py`. Liczby z niego to punkt wyjścia do `data/`.
+- **Ekonomia pierwszych dni:** patrz skrypt `narzedzia/ekonomia_sim2.py`. Liczby z niego to punkt wyjścia do `data/`.
 
 ## 12. Mapa świata
 
@@ -339,7 +339,7 @@ Frakcje ludzkie walczą tymi samymi klasami `Commander` i `Fighter` co gracz, z 
 
 - **Testy jednostkowe:** balistyka, rany, modyfikatory, przydział zadań, histereza, gospodarka dnia.
 - **Scenariusze balansu w CLI**, np. `dotnet run --project tools/Balance -- --scenario brama_ogary --a dowodca_l2 --b dowodca_l4 --runs 1000`. Wynik: odsetek wygranych, straty, czasy, najczęstsze błędy według specjalizacji.
-- **Gospodarka:** ten sam CLI uruchamia osadę na N dni z prostym graczem-botem (jak w `ekonomia_sim.py`) dla planów dobry, średni i zły.
+- **Gospodarka:** ten sam CLI uruchamia osadę na N dni z prostym graczem-botem (jak w `ekonomia_sim2.py`) dla planów dobry, średni i zły.
 
 ## 18. Kolejność budowy
 

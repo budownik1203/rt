@@ -54,9 +54,9 @@ Osada z wraków przy tlącej się latarni. Wszystko pochodzi z odzysku, broń ro
 | --- | --- | --- | --- |
 | Szałas | 6 drewna, 2 złomu, 10 rbh | — | dom dla 4 osób; jesienią 1 drewna na noc, zimą 3 |
 | Kuchnia | 8 drewna, 4 złomu, 12 rbh | 1 na 15 osób | +25% racji, wytapianie tłuszczu na paliwo (2 : 1) |
-| Smolarnia | 6 drewna, 6 złomu, 14 rbh | do 2 | 2 drewna na 1 paliwa, do 4 paliwa na osobę |
+| Smolarnia | 6 drewna, 6 złomu, 14 rbh | do 2 | 3 drewna na 2 paliwa, do 6 paliwa na osobę |
 | Piwnica grzybowa | 10 drewna, 15 rbh | do 3 | 3,5 żywności na osobę, pierwszy zbiór po 4 dniach |
-| Wyrąb | 4 drewna, 4 rbh | dowolnie | 10 drewna na osobę (zimą 7); każdy drwal dostaje +1 Odmienności dziennie (to ta sama zasada co w opisie pracy drwala, nie sumuje się) |
+| Wyrąb | 4 drewna, 4 rbh | dowolnie | 12 drewna na osobę (zimą 8, wiosną 10); każdy drwal dostaje +1 Odmienności dziennie (to ta sama zasada co w opisie pracy drwala, nie sumuje się) |
 | Pracownia | 8 drewna, 4 złomu, 12 rbh | do 3 badaczy | punkty nauki +25%; bez niej jeden badacz pracuje przy stole w latarni |
 | Przytułek | 6 drewna, 2 złomu, 10 rbh | 1 opiekun | Starszyzna: doradcy i opowieści (oś Opieka ↔ Selekcja) |
 | Komisja kwalifikacyjna | 8 drewna, 2 złomu, 10 rbh | 1 urzędnik | kategorie przydatności A, B, C (oś Opieka ↔ Selekcja) |
@@ -66,7 +66,7 @@ Osada z wraków przy tlącej się latarni. Wszystko pochodzi z odzysku, broń ro
 | Skrzydło szkoły | 12 drewna, 6 złomu, 16 rbh | instruktor | kursy klas, najwyżej 2 kratki od Placu |
 | Studnia | 4 drewna, 6 gruzu, 20 rbh | — | 20 wody dziennie |
 | Ratusz | 20 drewna, 10 złomu, 30 rbh | 1 urzędnik | prawa, dekrety, Legitymacja |
-| Barak | 16 drewna, 6 złomu, 24 rbh | — | dom dla 8 osób |
+| Barak | 16 drewna, 6 złomu, 24 rbh | — | dom dla 8 osób; 1 drewna na noc jesienią, zimą 2 |
 | Suszarnia | 8 drewna, 2 złomu, 10 rbh | 1 | chroni zapasy |
 | Zielarnia | 6 drewna, 8 rbh | 1 | zioła na bandaże i napary |
 | Warsztat złomiarza | 12 drewna, 15 złomu, 20 rbh | do 2 | 3 złomu na 2 blachy; kamizelki, hełmy, tarcze, groty |

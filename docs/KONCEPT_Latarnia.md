@@ -977,9 +977,9 @@ Każdy nowy człowiek przychodzi z własnymi poglądami, więc duża fala przyby
 
 **Handel:** wymienny, a najbardziej płynnymi towarami są paliwo, amunicja i leki. Ceny zależą od frakcji i jej epoki technologicznej.
 
-### Ekonomia pierwszych 10 dni (liczby robocze)
+### Ekonomia pierwszych 36 dni (liczby robocze, jeden zestaw od 8 listopada)
 
-Start jest walką o przetrwanie: od pierwszego dnia brakuje paliwa i jedzenia po równo. Liczby sprawdziła symulacja (skrypt `ekonomia_sim.py` w folderze gry), opisana na końcu tej sekcji.
+Start jest walką o przetrwanie: od pierwszego dnia brakuje paliwa i jedzenia po równo. Liczby sprawdziła symulacja `narzedzia/ekonomia_sim2.py` (dni 1–36: jesień, pierwsza zima i pierwszy Przypływ), opisana na końcu tej sekcji. Tabela `LICZBY` w tym skrypcie jest jedynym źródłem liczb ekonomii, a ta sekcja ją streszcza.
 
 **Czas:**
 
@@ -1015,16 +1015,17 @@ Start jest walką o przetrwanie: od pierwszego dnia brakuje paliwa i jedzenia po
 
 - racje: 1 na dorosłego, 0,5 na dziecko, czyli 9,5 na start;
 - woda: 1 na osobę;
-- ogrzewanie: 1 drewna na szałas na noc jesienią, 3 zimą.
+- woda: pompa po naprawie daje 12 dziennie, beczki 4, Studnia 20;
+- ogrzewanie: szałas 1 drewna na noc jesienią i wiosną, 3 zimą; Barak (dom dla 8 osób) 1 jesienią, 2 zimą.
 
-**Latarnia:** w dzień ta sama moc zużywa połowę paliwa.
+**Latarnia:** w dzień ta sama moc zużywa 25% paliwa. Paliwo na dobę w tabeli liczone jest dla jesieni (14 godzin dnia, 10 godzin nocy); zimą noc ma 14 godzin.
 
-| Moc | Promień (kratki) | Paliwo na godzinę nocy | Paliwo na dobę |
-| --- | --- | --- | --- |
-| 1 (tląca się) | 7 | 0,5 | 8,5 |
-| 2 | 10 | 1 | 17 |
-| 3 | 13 | 2 | 34 |
-| 4 (Przypływ) | 16 | 3,5 | 59,5 |
+| Moc | Promień (kratki po 2 m) | Paliwo na godzinę nocy | Paliwo na dobę jesienią | Paliwo na dobę zimą |
+| --- | --- | --- | --- | --- |
+| 1 (tląca się) | 7 (14 m) | 0,5 | 6,75 | 8,25 |
+| 2 | 10 (20 m) | 1 | 13,5 | 16,5 |
+| 3 | 13 (26 m) | 2 | 27 | 33 |
+| 4 (Przypływ) | 16 (32 m) | 3,5 | 47,25 | 57,75 |
 
 - Każdy kolejny poziom mocy podwaja koszt, a promień rośnie tylko o 3 kratki. Więcej światła to też wyższy poziom zagrożenia w nocy, bo mutanty widzą osadę z daleka.
 - Soczewki I dają +20% promienia przy tym samym zużyciu.
@@ -1037,13 +1038,13 @@ Start jest walką o przetrwanie: od pierwszego dnia brakuje paliwa i jedzenia po
 
 | Praca | Daje | Uwagi |
 | --- | --- | --- |
-| Drwal | 10 drewna | pracuje przy granicy Mgły, +1 Odmienności dziennie |
-| Smolarz | 4 paliwa z 8 drewna | wymaga Smolarni |
+| Drwal | 12 drewna (zimą 8, wiosną 10) | pracuje przy granicy Mgły, +1 Odmienności dziennie |
+| Smolarz | 2 paliwa z 3 drewna, najwyżej 6 paliwa na osobę | wymaga Smolarni, do 2 smolarzy na Smolarnię |
 | Zbieracz | 2,5 żywności, spada do 1 do 7. dnia | okolica się wyczerpuje, +2 Odmienności dziennie, zdarzenia |
 | Grzybiarz | 3,5 żywności | pierwszy zbiór 4 dni po budowie piwnicy |
 | Kucharz | +25% racji z całej żywności | jeden na 15 osób |
 | Budowniczy | 10 roboczogodzin | budowa i rozbiórka |
-| Wartownik | ochrona nocy | 2 osoby, następnego dnia pracują tylko pół zmiany |
+| Wartownik | ochrona nocy | 2 osoby po pół zmiany, czyli razem jedna osoba mniej do pracy |
 | Badacz | 2 punkty nauki za punkt Nauki |  |
 
 **Budynki epoki Złomu (pierwsze dni):**
@@ -1103,24 +1104,37 @@ Tłuszcz wytapia się w kuchni na paliwo: 2 tłuszczu dają 1 paliwa. Każdy poz
 | zimna noc bez drewna | −8 |
 | śmierć mieszkańca | −10 |
 
-**Wynik symulacji (500 gier na plan):**
+**Wynik symulacji `ekonomia_sim2.py` (500 gier na styl, dni 1–36):**
 
-| Plan | Głód | Ciemność | Morale 10. dnia |
-| --- | --- | --- | --- |
-| Dobry | 8% gier | 1% gier | ok. 41 |
-| Średni | 78% gier | 5% gier | ok. 36 |
-| Zły | zawsze | zawsze | 0 |
+| Styl | Zgony | Gry bez zgonów | Ciemność | Ludzi 36. dnia | Morale | Przypływ bez strat | Zapasy 36. dnia |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Dobry | około 1 | 36% | 0% | 18 | 53 | 98% | 530 |
+| Dobry z Opieką | 0,7 | 50% | 0% | 19 | 69 | 99% | 462 |
+| Dobry z Selekcją | 1,2 | 27% | 0% | 18 | 50 | 99% | 672 |
+| Średni | 2,9 | 28% | 17% | 15 | 70 | 76% | 338 |
+| Zły | 7,4 | 0% | 100% | 2 | 0 | 0% | 33 |
 
-- **Dobry plan:**
-  - 1. dzień: Smolarnia, Kuchnia i rozbiórka wraku;
-  - 3. dzień: Piwnica grzybowa;
-  - od 3. dnia: wyprawy co drugi dzień, racje 75% od 3. do 7. dnia, stały drwal do smolarni, stodoła 6. dnia.
+- **Dobry gracz:**
+  - stawia Smolarnię i Kuchnię pierwszego dnia, naprawia pompę i rozbiera wraki;
+  - przydziela ludzi tam, gdzie zapasu starczy na najkrócej;
+  - od 6. dnia gromadzi drewno i paliwo na zimę, zamienia szałasy na Baraki i racjonuje przy niskich zapasach;
+  - od 24. dnia odkłada około 55 paliwa na noc Przypływu.
 
-  Zapas paliwa spada do około jednego dnia, a racji do pół dnia.
-- **Średni plan:** Smolarnia dzień później i bez racjonowania. Osada głoduje, ale przetrwa.
-- **Zły plan:** latarnia na Mocy 2, Smolarnia dopiero 5. dnia, bez wypraw. Ciemność od 2. dnia i upadek do 4. dnia.
+  Traci średnio 1 osobę, zgodnie z celem 1–2 zgonów w pierwszej zimie (decyzja z 8 listopada).
+- **Średni gracz** robi wszystko 2 dni później, nie racjonuje i ma mniejszy zapas na zimę. Traci 3 osoby, a co czwarty Przypływ kosztuje go straty. Ma wyższe morale, bo nie racjonuje, ale płaci za to ludźmi.
+- **Zły gracz** pali latarnię na mocy 2 dla miejsca, stawia Smolarnię późno i nie robi wypraw. Ciemność, ucieczki i upadek osady.
+- **Oś Opieka ↔ Selekcja:** Opieka ratuje ludzi i morale kosztem zapasów, Selekcja daje o około 27% więcej zapasów kosztem zgonów. Żadna nie wygrywa.
 
-Najważniejsze decyzje początku to: kiedy postawić Smolarnię, czy racjonować, kogo wysłać na wyprawę i czy rozjaśnić latarnię, żeby mieć miejsce na budowę. Do 10. dnia osada nie jest samowystarczalna. Potrzebuje drugiej piwnicy, Studni i stałego źródła paliwa przed zimą.
+**Najważniejsze decyzje początku:**
+- kiedy postawić Smolarnię;
+- czy racjonować;
+- kogo wysłać na wyprawę;
+- ile drewna i paliwa odłożyć na zimę;
+- czy rozjaśnić latarnię, żeby mieć miejsce na budowę.
+
+**Uwagi do dalszego balansu:**
+- Woda nie jest wąskim gardłem, gdy pompa jest naprawiona. Studnia ma sens dopiero przy większej osadzie albo gdy pompa się zepsuje (wydarzenie).
+- Zimą osada potrzebuje prawie wszystkich rąk. Barak, Sidła i zapasy z jesieni decydują o przetrwaniu.
 
 ## Mapa świata i wyprawy
 

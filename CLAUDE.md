@@ -94,7 +94,8 @@ docs/OS_OPIEKA_SELEKCJA.md        szósta oś w szczegółach
 docs/OS_SZOSTA.md                 20 kandydatek na szóstą oś (zapas mechanik na prawa)
 docs/ANALIZA_KRYTYCZNA.md         druga analiza (8.11): sprzeczności, błędy symulacji, tempo badań, ryzyka modeli, pytania
 docs/HISTORIA.md                  historia projektu i decyzji
-narzedzia/ekonomia_sim.py         symulacja ekonomii pierwszych 10 dni
+narzedzia/ekonomia_sim2.py        symulacja ekonomii dni 1–36 (jedyne źródło liczb ekonomii); stare wersje w narzedzia/stare/
+narzedzia/setup_srodowiska.sh     instalacja Godota, .NET, Blendera w nowej sesji
 docs/DO_ZROBIENIA.md              lista otwartych zadań
 docs/PLAN_BUDOWY_GRY.md           architektura i kamienie milowe w Godocie
 docs/PIPELINE_GRAFIKI.md          jak powstaje grafika, konwencje kodu Blendera

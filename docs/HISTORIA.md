@@ -151,3 +151,9 @@ Ten plik streszcza rozmowy, z których powstał projekt, w kolejności, w jakiej
   - każda walka oglądana, plan przed walką i flary;
   - zatwierdzone zmiany wrogów;
   - treści drażliwe pokazywane wprost.
+- **Symulacja ekonomii v2** (`narzedzia/ekonomia_sim2.py`, 8 listopada):
+  - napisana od nowa: limit ruin, woda, skutki morale, przybysze tylko do światła, przydział pracy według braków, Barak zamiast szałasów, zapas paliwa na Przypływ;
+  - jeden zestaw liczb: Smolarnia 3:2 (do 6 na osobę), drwal 12 (zimą 8), latarnia w dzień 25%, szałas zimą 3, Barak zimą 2;
+  - wyniki: dobry gracz traci około 1 osoby, średni około 3, zły upada; Opieka ratuje ludzi kosztem zapasów, Selekcja daje około 27% więcej zapasów kosztem zgonów;
+  - projekt trafił do repozytorium `budownik1203/rt` na GitHubie.
+

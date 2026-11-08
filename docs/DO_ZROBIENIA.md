@@ -4,12 +4,10 @@
 
 Decyzje z 8 listopada są w `DECYZJE_2026-11-08.md` i w większości wpisane do konceptu. Zostało:
 
-1. **Poprawiona symulacja ekonomii** (`ANALIZA_KRYTYCZNA.md`, punkt 3):
-   - limit ruin, woda, skutki morale, przybysze tylko do światła, priorytet ogrzewania;
-   - obie strategie osi Opieka ↔ Selekcja;
-   - cel: dobry gracz traci 1–2 osoby w pierwszej zimie.
-
-   Potem jeden zestaw liczb ekonomii we wszystkich plikach.
+1. ~~Poprawiona symulacja ekonomii~~: zrobione 8.11 (`narzedzia/ekonomia_sim2.py`).
+   - Dobry gracz traci około 1 osoby.
+   - Opieka i Selekcja są zbalansowane.
+   - Liczby są ujednolicone w koncepcie i `EPOKI.md`.
 2. **Przypisanie praw do 6 osi** i **wersje komisarza według osi** Władza i Porządek (`USTROJE.md`).
 3. **Około 27 wzmianek starych ustrojów** w koncepcie (Junta, Kościół Mgły, Reżim itd. w wydarzeniach, mutacjach, standaryzacji) do przepisania na bieguny. Uwaga: Synowie Czystości jako „skrajna Junta” to opis frakcji i może zostać.
 4. **Przegląd 64 nazw ustrojów** przez użytkownika.
@@ -21,7 +19,7 @@ Decyzje z 8 listopada są w `DECYZJE_2026-11-08.md` i w większości wpisane do 
 
 ## A. Koncept: do rozpisania
 
-1. **Ekonomia w liczbach (pierwsze 10 dni gotowe, patrz koncept i narzedzia/ekonomia_sim.py):**
+1. **Ekonomia w liczbach (dni 1–36 gotowe 8.11, patrz koncept i narzedzia/ekonomia_sim2.py):**
    - koszty wszystkich budynków;
    - tempo produkcji;
    - zużycie (jedzenie, woda, paliwo do latarni);
