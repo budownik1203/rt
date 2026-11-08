@@ -97,6 +97,7 @@ docs/HISTORIA.md                  historia projektu i decyzji
 narzedzia/ekonomia_sim2.py        symulacja ekonomii dni 1–36 (jedyne źródło liczb ekonomii); stare wersje w narzedzia/stare/
 narzedzia/setup_srodowiska.sh     instalacja Godota, .NET, Blendera w nowej sesji
 docs/DO_ZROBIENIA.md              lista otwartych zadań
+docs/PRZED_STARTEM.md             co trzeba ustalić i zrobić przed startem gry (A blokuje prototyp walki)
 docs/PLAN_BUDOWY_GRY.md           architektura i kamienie milowe w Godocie
 docs/PIPELINE_GRAFIKI.md          jak powstaje grafika, konwencje kodu Blendera
 assets/latarnia_modele_godot.zip  modele .glb (postacie z animacjami, frakcje, wrogowie, budynki, broń) + README
