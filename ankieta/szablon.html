@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Latarnia: decyzje przed startem</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=IBM+Plex+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--papier:#f1e9d6;--papier2:#e7dcc2;--tusz:#2a2420;--szary:#6e6253;--czer:#9a2b1e;--ziel:#3f5e3a;--zolc:#c89a2c;--linia:#cdbf9f}
+*{box-sizing:border-box}body{margin:0;background:#2b2722;color:var(--tusz);font:15px/1.5 'IBM Plex Sans',system-ui,sans-serif}
+header{position:sticky;top:0;z-index:5;background:#1f1c18;color:#efe6d2;padding:10px 16px;border-bottom:3px solid var(--zolc)}
+header h1{font:20px 'Special Elite',monospace;margin:0 0 6px;letter-spacing:.5px}
+.bar{height:8px;background:#433c33;border-radius:4px;overflow:hidden}.bar i{display:block;height:100%;background:var(--zolc);width:0;transition:width .3s}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px;font-size:13px}
+button,select{font:inherit;cursor:pointer;border:1px solid var(--linia);background:var(--papier);color:var(--tusz);border-radius:3px;padding:4px 10px}
+button.gl{background:var(--zolc);border-color:#9e7a20;font-weight:600}button:hover{filter:brightness(1.05)}
+.wrap{display:grid;grid-template-columns:230px 1fr;gap:16px;max-width:1200px;margin:16px auto;padding:0 12px}
+nav{position:sticky;top:118px;align-self:start;background:var(--papier2);padding:10px;border-radius:3px;max-height:calc(100vh - 140px);overflow:auto}
+nav a{display:flex;justify-content:space-between;color:var(--tusz);text-decoration:none;padding:3px 6px;border-radius:2px;font-size:13px}nav a:hover{background:var(--papier)}
+nav a.ok{color:var(--ziel)}nav small{color:var(--szary)}
+main section{margin-bottom:22px;scroll-margin-top:130px}main h2 button{font:12px 'IBM Plex Sans',sans-serif}main h2{font:19px 'Special Elite',monospace;color:#efe6d2;margin:6px 0 10px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.karta{background:var(--papier);border-radius:2px;padding:14px 16px;margin-bottom:12px;box-shadow:0 2px 0 #0004;border-left:5px solid var(--linia);position:relative}
+.karta.done{border-left-color:var(--ziel)}.karta.talk{border-left-color:var(--czer)}
+.id{font:12px 'Special Elite',monospace;color:var(--szary)}.q{font-weight:600;font-size:16px;margin:2px 0 4px}.ctx{color:var(--szary);font-size:13.5px;margin-bottom:8px}
+label.op{display:flex;gap:8px;align-items:flex-start;padding:6px 8px;border:1px solid transparent;border-radius:3px;margin:2px 0;cursor:pointer}
+label.op:hover{background:var(--papier2)}label.op.sel{border-color:var(--tusz);background:#fffaf0}
+label.op input{margin-top:4px}.rec{font:11px 'Special Elite',monospace;background:var(--zolc);color:#1f1c18;padding:1px 6px;border-radius:2px;margin-left:6px;white-space:nowrap}
+.opn{display:flex;gap:6px;margin-top:8px;align-items:flex-start}textarea{flex:1;min-height:42px;font:inherit;padding:6px 8px;border:1px solid var(--linia);border-radius:3px;background:#fffdf6;resize:vertical}
+.mic{width:42px;height:42px;font-size:18px;padding:0}.mic.on{background:var(--czer);color:#fff;border-color:var(--czer);animation:p 1s infinite}@keyframes p{50%{opacity:.6}}
+.flag{position:absolute;top:10px;right:12px;font-size:12px;color:var(--szary)}.flag input{vertical-align:middle}
+.hint{background:#3a342c;color:#e8dcc0;padding:10px 14px;border-radius:3px;font-size:13px;max-width:1200px;margin:12px auto 0}
+.hint b{color:var(--zolc)}#eksport{display:none;position:fixed;inset:0;background:#000a;z-index:9;padding:30px}#eksport div{background:var(--papier);max-width:900px;margin:auto;padding:16px;border-radius:3px;height:100%;display:flex;flex-direction:column;gap:8px}
+#eksport textarea{flex:1;font:12px monospace}#stan{color:#bfb39a}
+@media(max-width:800px){.wrap{grid-template-columns:1fr}nav{position:static;max-height:none}}
+</style></head><body>
+<header><h1>LATARNIA · decyzje przed startem prac</h1><div class="bar"><i id="pasek"></i></div>
+<div class="row"><span id="licz"></span>
+<select id="filtr"><option value="all">wszystkie pytania</option><option value="open">tylko bez odpowiedzi</option><option value="talk">tylko „do omówienia”</option></select>
+<button class="gl" id="btnEks">Eksport odpowiedzi</button><span id="stan"></span></div></header>
+<div class="hint"><b>Jak to działa:</b> zaznacz opcję (polecana ma żółtą etykietę) albo „Inaczej” i opisz w polu. Pole opinii jest zawsze dostępne. <b>Dyktowanie:</b> przycisk 🎤 działa, gdy plik otworzysz z folderu w Chrome albo Edge; wszędzie (także na claude.ai) działa też dyktowanie Windows: kliknij w pole i naciśnij <b>Win + H</b>. Odpowiedzi zapisują się same. Na koniec powiedz Claude „odpowiedzi gotowe” albo użyj Eksportu i wklej tekst do czatu.</div>
+<div class="wrap"><nav id="nav"></nav><main id="main"></main></div>
+<div id="eksport"><div><b>Odpowiedzi (Markdown) – skopiuj i wklej do czatu z Claude albo zapisz w folderze Gra</b><textarea id="eksTxt" readonly></textarea>
+<div class="row"><button class="gl" id="btnKop">Kopiuj</button><a id="btnPob" download="odpowiedzi_latarnia.md"><button>Pobierz plik .md</button></a><button id="btnZam">Zamknij</button><span id="kopStan"></span></div></div></div>
+<script>
+/*DANE*/
+const KLUCZ='latarnia_ankieta_v1';let A={};let db=null,dbDoc=null,tZap=null;
+try{A=JSON.parse(localStorage.getItem(KLUCZ)||'{}')}catch(e){A={}}
+const $=s=>document.querySelector(s);const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function zapisz(){try{localStorage.setItem(KLUCZ,JSON.stringify(A))}catch(e){}
+ clearTimeout(tZap);tZap=setTimeout(async()=>{if(dbDoc){try{await dbDoc.set({odpowiedzi:A,zmiana:new Date().toISOString()});$('#stan').textContent='zapisano w bazie strony ✓'}catch(e){$('#stan').textContent='zapis lokalny (baza niedostępna)'}}else $('#stan').textContent='zapisano w tej przeglądarce ✓'},700)}
+function gotowe(id){const a=A[id];return a&&(a.w!==undefined&&a.w!==null)}
+function render(){const f=$('#filtr').value;let html='',nav='';
+ for(const [k,naz] of KAT){const qs=Q.filter(q=>q.k===k);const ok=qs.filter(q=>gotowe(q.id)).length;
+  nav+=`<a href="#s-${k}" class="${ok===qs.length?'ok':''}"><span>${esc(naz)}</span><small>${ok}/${qs.length}</small></a>`;
+  const widoczne=qs.filter(q=>f==='all'||(f==='open'&&!gotowe(q.id))||(f==='talk'&&A[q.id]&&A[q.id].t));
+  if(!widoczne.length)continue;
+  html+=`<section id="s-${k}"><h2><span>${esc(naz)}</span><button data-pol="${k}">Zatwierdź polecane w tej kategorii (bez odpowiedzi)</button></h2>`;
+  for(const q of widoczne){const a=A[q.id]||{};const opcje=[...q.o,'Inaczej (opisz w polu niżej)'];
+   html+=`<div class="karta ${gotowe(q.id)?'done':''} ${a.t?'talk':''}" id="k-${q.id}"><label class="flag"><input type="checkbox" data-talk="${q.id}" ${a.t?'checked':''}> do omówienia</label>
+   <div class="id">${q.id}</div><div class="q">${esc(q.q)}</div>${q.ctx?`<div class="ctx">${esc(q.ctx)}</div>`:''}`;
+   opcje.forEach((o,i)=>{html+=`<label class="op ${a.w===i?'sel':''}"><input type="radio" name="${q.id}" value="${i}" ${a.w===i?'checked':''}><span>${esc(o)}${i===0?'<span class="rec">polecane</span>':''}</span></label>`});
+   html+=`<div class="opn"><textarea data-op="${q.id}" placeholder="Twoja opinia (opcjonalnie)…">${esc(a.o||'')}</textarea><button class="mic" data-mic="${q.id}" title="Dyktuj (Chrome/Edge z pliku lokalnego)">🎤</button></div></div>`}
+  html+='</section>'}
+ $('#main').innerHTML=html||'<div class="karta">Brak pytań w tym widoku. 🎉</div>';$('#nav').innerHTML=nav;licz()}
+function licz(){const n=Q.filter(q=>gotowe(q.id)).length;$('#licz').textContent=`Odpowiedzi: ${n} / ${Q.length}`;$('#pasek').style.width=(100*n/Q.length)+'%';
+ for(const [k] of KAT){}}
+document.addEventListener('change',e=>{const t=e.target;
+ if(t.type==='radio'){const id=t.name;A[id]=A[id]||{};A[id].w=+t.value;zapisz();const k=$('#k-'+id);k.classList.add('done');k.querySelectorAll('label.op').forEach((l,i)=>l.classList.toggle('sel',i===+t.value));licz();odswNav()}
+ if(t.dataset.talk){const id=t.dataset.talk;A[id]=A[id]||{};A[id].t=t.checked;zapisz();$('#k-'+id).classList.toggle('talk',t.checked)}});
+document.addEventListener('input',e=>{const t=e.target;if(t.dataset.op){const id=t.dataset.op;A[id]=A[id]||{};A[id].o=t.value;zapisz()}});
+function odswNav(){const sc=window.scrollY;const f=$('#filtr').value;let nav='';for(const [k,naz] of KAT){const qs=Q.filter(q=>q.k===k);const ok=qs.filter(q=>gotowe(q.id)).length;nav+=`<a href="#s-${k}" class="${ok===qs.length?'ok':''}"><span>${esc(naz)}</span><small>${ok}/${qs.length}</small></a>`}$('#nav').innerHTML=nav}
+document.addEventListener('click',e=>{const t=e.target.closest('button');if(!t)return;
+ if(t.dataset.pol){Q.filter(q=>q.k===t.dataset.pol&&!gotowe(q.id)).forEach(q=>{A[q.id]=A[q.id]||{};A[q.id].w=0});zapisz();const y=window.scrollY;render();window.scrollTo(0,y)}
+ if(t.dataset.mic)mikrofon(t.dataset.mic,t)});
+$('#filtr').onchange=render;
+// --- mikrofon ---
+let rec=null,recId=null;
+function mikrofon(id,btn){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(!SR){alertBox('Ta przeglądarka nie ma rozpoznawania mowy. Kliknij w pole i naciśnij Win + H (dyktowanie Windows).');return}
+ if(rec){rec.stop();return}
+ const ta=document.querySelector(`textarea[data-op="${id}"]`);const base=ta.value?ta.value.replace(/\s*$/,' '):'';
+ try{rec=new SR()}catch(e){alertBox('Mikrofon niedostępny tutaj. Użyj Win + H albo otwórz plik z folderu w Chrome/Edge.');return}
+ rec.lang='pl-PL';rec.continuous=true;rec.interimResults=true;recId=id;btn.classList.add('on');let fin='';
+ rec.onresult=ev=>{let tmp='';for(let i=ev.resultIndex;i<ev.results.length;i++){const r=ev.results[i];if(r.isFinal)fin+=r[0].transcript+' ';else tmp+=r[0].transcript}ta.value=base+fin+tmp;A[id]=A[id]||{};A[id].o=ta.value;zapisz()};
+ rec.onerror=ev=>{if(ev.error==='not-allowed'||ev.error==='service-not-allowed')alertBox('Brak zgody na mikrofon w tym widoku. Użyj Win + H albo otwórz plik z folderu w Chrome/Edge.')};
+ rec.onend=()=>{btn.classList.remove('on');rec=null};try{rec.start()}catch(e){btn.classList.remove('on');rec=null;alertBox('Nie udało się włączyć mikrofonu. Użyj Win + H.')}}
+function alertBox(m){$('#stan').textContent=m}
+// --- eksport ---
+function markdown(){let s=`# Latarnia: odpowiedzi na decyzje przed startem\n\nWypełniono: ${Q.filter(q=>gotowe(q.id)).length} / ${Q.length} (${new Date().toLocaleString('pl-PL')})\n`;
+ for(const [k,naz] of KAT){s+=`\n## ${naz}\n`;for(const q of Q.filter(q=>q.k===k)){const a=A[q.id]||{};const opcje=[...q.o,'Inaczej'];
+  const w=(a.w!==undefined&&a.w!==null)?opcje[a.w]+(a.w===0?' (polecane)':''):'— brak odpowiedzi —';
+  s+=`- **${q.id} ${q.q}:** ${w}${a.t?' · DO OMÓWIENIA':''}${a.o?`\n  - opinia: ${a.o.replace(/\n/g,' ')}`:''}\n`}}return s}
+$('#btnEks').onclick=()=>{const m=markdown();$('#eksTxt').value=m;try{$('#btnPob').href=URL.createObjectURL(new Blob([m],{type:'text/markdown'}))}catch(e){}if(window.claude&&window.claude.use)$('#btnPob').style.display='none';$('#eksport').style.display='block'};
+$('#btnZam').onclick=()=>$('#eksport').style.display='none';
+$('#btnKop').onclick=async()=>{try{await navigator.clipboard.writeText($('#eksTxt').value);$('#kopStan').textContent='skopiowano ✓'}catch(e){$('#eksTxt').select();$('#kopStan').textContent='zaznaczono – naciśnij Ctrl+C'}};
+render();
+// --- baza strony (claude.ai): odczyt i zapis, żeby Claude mógł przeczytać odpowiedzi ---
+(async()=>{try{if(!window.claude||!window.claude.use)return;db=await window.claude.use('db');if(!db)return;dbDoc=db.doc('ankieta/odpowiedzi');
+ const snap=await Promise.race([dbDoc.get(),new Promise((_,r)=>setTimeout(()=>r('t'),10000))]);const d=snap&&(snap.data?snap.data():snap);
+ if(d&&d.odpowiedzi){for(const [id,v] of Object.entries(d.odpowiedzi)){if(!A[id])A[id]=v}render()}
+ $('#stan').textContent='połączono z bazą strony ✓';if(Object.keys(A).length)zapisz()}catch(e){}})();
+</script></body></html>

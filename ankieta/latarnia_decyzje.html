@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="pl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Latarnia: decyzje przed startem</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=IBM+Plex+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--papier:#f1e9d6;--papier2:#e7dcc2;--tusz:#2a2420;--szary:#6e6253;--czer:#9a2b1e;--ziel:#3f5e3a;--zolc:#c89a2c;--linia:#cdbf9f}
+*{box-sizing:border-box}body{margin:0;background:#2b2722;color:var(--tusz);font:15px/1.5 'IBM Plex Sans',system-ui,sans-serif}
+header{position:sticky;top:0;z-index:5;background:#1f1c18;color:#efe6d2;padding:10px 16px;border-bottom:3px solid var(--zolc)}
+header h1{font:20px 'Special Elite',monospace;margin:0 0 6px;letter-spacing:.5px}
+.bar{height:8px;background:#433c33;border-radius:4px;overflow:hidden}.bar i{display:block;height:100%;background:var(--zolc);width:0;transition:width .3s}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px;font-size:13px}
+button,select{font:inherit;cursor:pointer;border:1px solid var(--linia);background:var(--papier);color:var(--tusz);border-radius:3px;padding:4px 10px}
+button.gl{background:var(--zolc);border-color:#9e7a20;font-weight:600}button:hover{filter:brightness(1.05)}
+.wrap{display:grid;grid-template-columns:230px 1fr;gap:16px;max-width:1200px;margin:16px auto;padding:0 12px}
+nav{position:sticky;top:118px;align-self:start;background:var(--papier2);padding:10px;border-radius:3px;max-height:calc(100vh - 140px);overflow:auto}
+nav a{display:flex;justify-content:space-between;color:var(--tusz);text-decoration:none;padding:3px 6px;border-radius:2px;font-size:13px}nav a:hover{background:var(--papier)}
+nav a.ok{color:var(--ziel)}nav small{color:var(--szary)}
+main section{margin-bottom:22px;scroll-margin-top:130px}main h2 button{font:12px 'IBM Plex Sans',sans-serif}main h2{font:19px 'Special Elite',monospace;color:#efe6d2;margin:6px 0 10px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.karta{background:var(--papier);border-radius:2px;padding:14px 16px;margin-bottom:12px;box-shadow:0 2px 0 #0004;border-left:5px solid var(--linia);position:relative}
+.karta.done{border-left-color:var(--ziel)}.karta.talk{border-left-color:var(--czer)}
+.id{font:12px 'Special Elite',monospace;color:var(--szary)}.q{font-weight:600;font-size:16px;margin:2px 0 4px}.ctx{color:var(--szary);font-size:13.5px;margin-bottom:8px}
+label.op{display:flex;gap:8px;align-items:flex-start;padding:6px 8px;border:1px solid transparent;border-radius:3px;margin:2px 0;cursor:pointer}
+label.op:hover{background:var(--papier2)}label.op.sel{border-color:var(--tusz);background:#fffaf0}
+label.op input{margin-top:4px}.rec{font:11px 'Special Elite',monospace;background:var(--zolc);color:#1f1c18;padding:1px 6px;border-radius:2px;margin-left:6px;white-space:nowrap}
+.opn{display:flex;gap:6px;margin-top:8px;align-items:flex-start}textarea{flex:1;min-height:42px;font:inherit;padding:6px 8px;border:1px solid var(--linia);border-radius:3px;background:#fffdf6;resize:vertical}
+.mic{width:42px;height:42px;font-size:18px;padding:0}.mic.on{background:var(--czer);color:#fff;border-color:var(--czer);animation:p 1s infinite}@keyframes p{50%{opacity:.6}}
+.flag{position:absolute;top:10px;right:12px;font-size:12px;color:var(--szary)}.flag input{vertical-align:middle}
+.hint{background:#3a342c;color:#e8dcc0;padding:10px 14px;border-radius:3px;font-size:13px;max-width:1200px;margin:12px auto 0}
+.hint b{color:var(--zolc)}#eksport{display:none;position:fixed;inset:0;background:#000a;z-index:9;padding:30px}#eksport div{background:var(--papier);max-width:900px;margin:auto;padding:16px;border-radius:3px;height:100%;display:flex;flex-direction:column;gap:8px}
+#eksport textarea{flex:1;font:12px monospace}#stan{color:#bfb39a}
+@media(max-width:800px){.wrap{grid-template-columns:1fr}nav{position:static;max-height:none}}
+</style></head><body>
+<header><h1>LATARNIA · decyzje przed startem prac</h1><div class="bar"><i id="pasek"></i></div>
+<div class="row"><span id="licz"></span>
+<select id="filtr"><option value="all">wszystkie pytania</option><option value="open">tylko bez odpowiedzi</option><option value="talk">tylko „do omówienia”</option></select>
+<button class="gl" id="btnEks">Eksport odpowiedzi</button><span id="stan"></span></div></header>
+<div class="hint"><b>Jak to działa:</b> zaznacz opcję (polecana ma żółtą etykietę) albo „Inaczej” i opisz w polu. Pole opinii jest zawsze dostępne. <b>Dyktowanie:</b> przycisk 🎤 działa, gdy plik otworzysz z folderu w Chrome albo Edge; wszędzie (także na claude.ai) działa też dyktowanie Windows: kliknij w pole i naciśnij <b>Win + H</b>. Odpowiedzi zapisują się same. Na koniec powiedz Claude „odpowiedzi gotowe” albo użyj Eksportu i wklej tekst do czatu.</div>
+<div class="wrap"><nav id="nav"></nav><main id="main"></main></div>
+<div id="eksport"><div><b>Odpowiedzi (Markdown) – skopiuj i wklej do czatu z Claude albo zapisz w folderze Gra</b><textarea id="eksTxt" readonly></textarea>
+<div class="row"><button class="gl" id="btnKop">Kopiuj</button><a id="btnPob" download="odpowiedzi_latarnia.md"><button>Pobierz plik .md</button></a><button id="btnZam">Zamknij</button><span id="kopStan"></span></div></div></div>
+<script>
+// Wszystkie otwarte sprawy koncepcyjne Latarni (stan 8.11.2026). Pierwsza opcja = polecana.
+const KAT = [
+ ['tech','Technika i start prototypu'],['walka','Walka: zasady'],['ai','AI dowódców i wojowników'],['proto','Prototyp walki: zawartość'],
+ ['ludzie','Ludzie, klasy, cechy'],['osada','Osada i ekonomia'],['polityka','Polityka i ustroje'],['frakcje','Frakcje'],
+ ['mapa','Mapa świata i wyprawy'],['epoki','Epoki i badania'],['wrogowie','Wrogowie'],['bron','Broń i sprzęt'],
+ ['ui','Interfejs'],['grafika','Grafika'],['dzwiek','Dźwięk i muzyka'],['fabula','Fabuła, wydarzenia, ton'],['kampania','Kampania i ustawienia'],['wydanie','Wydanie gry']
+];
+const Q = [
+// --- TECHNIKA ---
+{id:'T1',k:'tech',q:'Język kodu i danych',ctx:'Kod C# i nazwy w danych.',o:['Kod po angielsku (Fighter, Commander), klucze danych po polsku bez ogonków (karabin_powtarzalny), teksty w grze po polsku','Wszystko po angielsku, polski tylko w tekstach gry','Wszystko po polsku, także nazwy klas w kodzie']},
+{id:'T2',k:'tech',q:'Format danych gry i zapisu',ctx:'Broń, wrogowie, prawa, technologie w plikach edytowalnych bez kodu.',o:['JSON na start (łatwy do czytania i poprawiania), szybszy format binarny później dla zapisów','YAML (czytelniejszy dla człowieka, wolniejszy)','Od razu format binarny (MessagePack)']},
+{id:'T3',k:'tech',q:'Gdzie testujesz prototyp',ctx:'Prototyp uruchamia się w Godocie 4.7 .NET. Ja mogę budować i robić zrzuty w chmurze, ale grać musisz u siebie.',o:['Instaluję u siebie Godot 4.7 .NET i .NET 8 SDK, uruchamiam projekt z folderu','Wolę gotowy plik .exe po każdej wersji, bez instalowania Godota','Na razie tylko filmiki i zrzuty od Ciebie']},
+{id:'T4',k:'tech',q:'Twój komputer (wpisz kartę graficzną i procesor w opinii)',ctx:'Od tego zależy budżet: ile jednostek naraz, jakie światła i cienie.',o:['Średni komputer do gier (np. RTX 3060 / RX 6600)','Mocny komputer (RTX 4070 lub lepszy)','Słabszy laptop lub grafika zintegrowana']},
+{id:'T5',k:'tech',q:'Prototyp walki: kształty czy od razu modele',ctx:'Kształty pozwalają szybko sprawdzić, czy AI i walka wciągają. Modele dają klimat, ale spowalniają start.',o:['Najpierw proste kształty (2–3 tygodnie szybciej), modele po teście shadera','Od razu modele .glb z animacjami','Kształty, ale z shaderem pixel art od pierwszego dnia']},
+{id:'T6',k:'tech',q:'Obrót kamery',ctx:'Koncept mówi o płynnym obrocie, pytania proponowały skokowy. Pixel art najlepiej wygląda w stałych kątach, ale płynny obrót daje swobodę.',o:['Skokowy co 45° (8 kątów) z krótką animacją przejścia','Płynny, dowolny kąt','Skokowy co 90° (4 kąty)']},
+{id:'T7',k:'tech',q:'Mody',ctx:'Dane gry w JSON da się łatwo udostępnić graczom.',o:['Tak, folder mods/ z danymi (broń, wrogowie, wydarzenia), bez skryptów','Tak, z pełnym wsparciem i skryptami','Nie']},
+// --- WALKA ---
+{id:'W1',k:'walka',q:'Ranni a zabici',ctx:'Jaki odsetek wyłączonych z walki to ranni, których da się uratować wyniesieniem.',o:['70% ranni do uratowania, 30% zabici od razu','50 / 50, ostrzej','85 / 15, łagodniej, śmierć głównie przez brak pomocy']},
+{id:'W2',k:'walka',q:'Długość typowej nocnej obrony',ctx:'Każda walka jest oglądana, więc długość decyduje o tempie gry.',o:['1–3 minuty przy tempie x1','Krótko: 30–90 sekund','Długo: 3–6 minut, mniej walk']},
+{id:'W3',k:'walka',q:'Ile walk w grze',ctx:'Ustalone: każda walka oglądana. Roboczo 2–4 walki na tydzień gry (dzień = 12 min).',o:['2–4 na tydzień gry (około 1 walka na 30–45 minut grania)','1–2 na tydzień, każda większa','Codziennie coś, ale część to krótkie potyczki']},
+{id:'W4',k:'walka',q:'Tempo gry',ctx:'Przyspieszenie czasu w osadzie i w walce.',o:['Osada x1, x2, x4, x8; walka x1, x2, x4 i pauza','Osada do x4, walka tylko x1 i x2','Osada do x16']},
+{id:'W5',k:'walka',q:'Kamera w kluczowych momentach',ctx:'Najazd na flankę, zbliżenie na upadek dowódcy, spowolnienie.',o:['Tak, sama przybliża i zwalnia, z możliwością wyłączenia','Tylko spowolnienie, bez ruchu kamery','Nie, gracz steruje kamerą sam']},
+{id:'W6',k:'walka',q:'Amunicja',ctx:'Jak dokładnie liczyć naboje i strzały.',o:['Co do sztuki w składzie na wyprawie, w osadzie w paczkach po 20','Co do sztuki wszędzie','Abstrakcyjnie: zapas jako pasek (pełny, połowa, brak)']},
+{id:'W7',k:'walka',q:'Zużycie i zacięcia broni',ctx:'Ważne przy broni ze złomu i sprzęcie obcym dla klasy.',o:['Tak: zacięcia rosną przy złej konserwacji i obcym sprzęcie, broń się zużywa','Tylko zacięcia, bez zużycia','Nie']},
+{id:'W8',k:'walka',q:'Podnoszenie broni poległych',ctx:'',o:['Tak, sami, gdy skończy się amunicja albo stracą broń','Tylko na rozkaz dowódcy','Nie']},
+{id:'W9',k:'walka',q:'Celowanie w strefy (głowa, nogi)',ctx:'',o:['Tylko jako zdolność Snajpera i strzelca wyborowego','Każdy celuje w strefy zależnie od wyszkolenia','Nie, strefy trafień są losowe']},
+{id:'W10',k:'walka',q:'Noc i dzień w walce',ctx:'',o:['W nocy widać tylko w świetle (latarnia, flary, latarki) i z Oczami Mgły','Noc tylko obniża celność','Bez różnicy']},
+{id:'W11',k:'walka',q:'Pogoda w walce',ctx:'Deszcz, śnieg, wiatr.',o:['Tak: deszcz gasi ogień i ogranicza widoczność, śnieg spowalnia, wiatr rozwiewa dym i Oddech','Tylko widoczność','Nie w prototypie, później']},
+{id:'W12',k:'walka',q:'Niszczenie pancerza',ctx:'',o:['Tak, pancerz traci punkty i wymaga naprawy w warsztacie','Tylko przy krytycznych trafieniach','Nie']},
+{id:'W13',k:'walka',q:'Jeńcy w walkach z ludźmi',ctx:'',o:['Tak: wrogowie się poddają, a o jeńcach decyduje ustrój i prawa','Tylko ranni wrogowie jako jeńcy','Nie, walka do końca albo ucieczki']},
+{id:'W14',k:'walka',q:'Psy i zwierzęta juczne',ctx:'',o:['Psy walczą (szkoła Tresury), juczne nie walczą, ale mogą spanikować','Psy tylko tropią i ostrzegają','Bez zwierząt w walce']},
+{id:'W15',k:'walka',q:'Walka we wnętrzach budynków',ctx:'Wejście do budynku to dril w koncepcie.',o:['Tak, budynki z piętrami jako osobne poziomy siatki (później niż prototyp)','Tylko parter','Nie, budynki to osłony z zewnątrz']},
+{id:'W16',k:'walka',q:'Wysokość terenu',ctx:'',o:['Daje premię do celności, zasięgu i widoczności','Tylko widoczność','Bez znaczenia']},
+{id:'W17',k:'walka',q:'Rozprzestrzenianie ognia',ctx:'Koktajle, garnki ogniowe, miotacze.',o:['Ogień idzie po trawie i drewnie, gaśnie w deszczu','Ogień tylko w miejscu trafienia','Ogień także niszczy budynki osady']},
+{id:'W18',k:'walka',q:'Granaty',ctx:'',o:['Mogą odbić się od framugi, ale wrogowie nie odrzucają','Odbicia i odrzucanie','Bez odbić, zawsze trafiają tam, gdzie rzucone']},
+{id:'W19',k:'walka',q:'Noce bez ataku',ctx:'Skoro walk jest mniej, noce bez walki mogą mieć własne zdarzenia.',o:['Tak: krótkie zdarzenia (odgłosy, szept Mgły, zwiad Mgły, ślady rano)','Nie, noc bez ataku mija szybko','Tak, i czasem drobna potyczka rozstrzygana w tle']},
+// --- AI ---
+{id:'A1',k:'ai',q:'Architektura AI dowódcy',ctx:'TECHNIKA_AI_I_MECHANIKI.md: 5 kroków (obraz sytuacji, zadania, przydział, rozkaz tylko z sensem, rozkazy imienne), histereza, ocena użyteczności. Bez sieci neuronowych.',o:['Akceptuję w całości','Akceptuję, ale chcę prostszą wersję w prototypie (bez przewidywania)','Chcę omówić zmiany (opisz)']},
+{id:'A2',k:'ai',q:'Czy dowódca ma klasę i walczy',ctx:'',o:['Tak: dowódca to wojownik z klasą i profilem dowódcy, walczy mniej, bo myśli; klasa wpływa na styl','Dowódca nie walczy, stoi z tyłu','Dowódca walczy jak każdy, bez kary']},
+{id:'A3',k:'ai',q:'Charakter dowódcy',ctx:'Ostrożny, brawurowy, uparty, opiekuńczy.',o:['Zmienia się powoli z przeżyciami (po klęsce ostrożny bardziej ostrożny)','Stały od rekrutacji','Zmienia się szybko po każdej walce']},
+{id:'A4',k:'ai',q:'Odmowa rozkazu',ctx:'',o:['Tak, przy niskim morale, złej relacji z dowódcą i cechach (Tchórzliwy, Odważny)','Tylko w panice','Nigdy, rozkaz zawsze wykonany']},
+{id:'A5',k:'ai',q:'Dymki rozkazów',ctx:'',o:['Po polsku z imionami, 5–10 wariantów frazy na sytuację, zależnie od charakteru','Krótkie ikony zamiast tekstu','Tekst po polsku, jedna fraza na sytuację']},
+{id:'A6',k:'ai',q:'Pamięć dowódcy o wrogach',ctx:'Obok Bestiariusza.',o:['Tak, premia za osobiste doświadczenie z danym typem wroga','Tylko Bestiariusz osady','Nie']},
+{id:'A7',k:'ai',q:'Co myśli dowódca: kiedy widać',ctx:'Mapa zagrożeń, przydziały, sektory.',o:['Tylko w powtórce, na żywo same dymki','Na żywo jako opcjonalna nakładka','Nigdy, tylko raport tekstowy']},
+{id:'A8',k:'ai',q:'Rywalizacja dowódców',ctx:'',o:['Lekka, przez relacje: zazdrość o awanse i chwałę','Rozbudowana, z wydarzeniami','Brak']},
+{id:'A9',k:'ai',q:'Dowódca bez Akademii',ctx:'',o:['Tak, do poziomu 2','Tylko poziom 1','Nie, każdy dowódca przez Akademię']},
+// --- PROTOTYP ---
+{id:'P1',k:'proto',q:'Klasy w prototypie',ctx:'',o:['4 szkoły: walka wręcz (Tarczownik, Rębacz), strzelecka (Strzelec), sanitarna (Sanitariusz), zwiadu (Zwiadowca)','2 szkoły: wręcz i strzelecka','6 szkół, dodać saperską i komisarzy']},
+{id:'P2',k:'proto',q:'Wrogowie w prototypie',ctx:'',o:['Szczurza Fala, Ogar, Krzykacz, Nosiciel (z konceptu)','Tylko Ogar i Szczurza Fala','Dodać Szabrowników (walka z ludźmi)']},
+{id:'P3',k:'proto',q:'Broń w prototypie',ctx:'Złom i Kuźnia.',o:['Nóż, rura, maczeta, dzida, włócznia z tarczą, łuk z rurek, kusza, młot','Tylko Złom (nóż, rura, dzida, łuk)','Złom, Kuźnia i jeden znaleziony karabin bez amunicji']},
+{id:'P4',k:'proto',q:'Mapa prototypu',ctx:'Ustalone: obrona na mapie osady.',o:['Fragment osady: latarnia na mocy 1, 6–8 budynków Złomu, palisada z bramą, wąskie gardło','Sama brama z palisadą, bez budynków','Cała mała osada z kręgiem światła']},
+{id:'P5',k:'proto',q:'Skład w prototypie',ctx:'',o:['6 osób z dowódcą, możliwość zmiany poziomu dowódcy (1–3) i specjalizacji do porównań','4 osoby, prosto','8 osób, dwie podgrupy']},
+{id:'P6',k:'proto',q:'Raport po walce w prototypie',ctx:'',o:['Oś czasu, ocena decyzji dowódcy, wkład klas, diagnoza („potrzebny dowódca z Formacjami 3”)','Tylko straty i zabici','Pełny raport z powtórką i nakładkami']},
+// --- LUDZIE ---
+{id:'L1',k:'ludzie',q:'Katalog 52 klas (KLASY.md)',ctx:'Opisy, sprzęt, zdolności z liczbami, warunki awansu.',o:['Akceptuję jako bazę, liczby do balansu','Akceptuję, ale chcę przejrzeć każdą szkołę osobno','Za dużo klas, przyciąć do około 30']},
+{id:'L2',k:'ludzie',q:'Ile ukrytych cech',ctx:'',o:['1–3 ukryte obok 2–3 jawnych','Wszystkie cechy ukryte na start','1 ukryta']},
+{id:'L3',k:'ludzie',q:'Katalog ukrytych cech',ctx:'Propozycje w UZUPELNIENIA.md.',o:['Rozpisz pełny katalog według propozycji (dobre i złe, warunki odkrycia)','Chcę dopisać swoje (opisz)','Mniej cech, ale silniejsze']},
+{id:'L4',k:'ludzie',q:'Dzieci w szkołach klas',ctx:'Uwaga: ustalono kategorie przydatności od 10 lat i prawo „Dzieci w warsztatach” od 10 lat.',o:['Szkoły klas od 16 lat; wcześniej tylko szkoła dla dzieci i warsztaty','Od 14 lat jako kadeci (przy Wspólnym wychowaniu)','Od 10 lat, jak warsztaty']},
+{id:'L5',k:'ludzie',q:'Starzenie się',ctx:'Kampania trwa około 7 lat gry.',o:['Tak, powolne: starsi słabną, mogą przejść do Starszyzny, rzadko umierają ze starości','Bez starzenia','Pełne starzenie i śmierć ze starości']},
+{id:'L6',k:'ludzie',q:'Związki i narodziny',ctx:'',o:['W tle: pary, narodziny, żałoba, jako wydarzenia','Pełna mechanika rodzin jak w RimWorldzie','Brak, ludzie tylko przychodzą z zewnątrz']},
+{id:'L7',k:'ludzie',q:'Zmutowani jako dowódcy',ctx:'',o:['Tak, ale osie Mgły wpływają na posłuch (przy Czystości gorszy)','Nie','Tak, bez kar']},
+{id:'L8',k:'ludzie',q:'Postacie z historią',ctx:'Ręcznie pisane postacie, które pojawiają się w kampaniach.',o:['10–15 na kampanię, z wątkami osobistymi','Kilka (3–5), ale głębokie','Brak, tylko losowi ludzie']},
+{id:'L9',k:'ludzie',q:'Nazwy stopni wojskowych',ctx:'Wcześniej zależały od starych ustrojów. Teraz mamy 6 osi.',o:['Zależne od osi Władza i Porządek (np. Dyscyplina: szeregowy, kapral; Swoboda: tylko funkcje)','Jedne stopnie dla wszystkich','Bez stopni, tylko klasy i stopnie I–IV']},
+{id:'L10',k:'ludzie',q:'Sylwetki ludzi',ctx:'',o:['3 sylwetki i 2 wzrosty, kobiety i mężczyźni na wspólnym szkielecie','Jedna sylwetka, różne ubiory','Pełny edytor ciała']},
+{id:'L11',k:'ludzie',q:'Portrety w aktach',ctx:'',o:['Osobne dokładniejsze głowy 3D renderowane jako pixel art 64×64 w sepii','Pixel art rysowany z części 32×32','Bez portretów, tylko opis']},
+// --- OSADA ---
+{id:'O1',k:'osada',q:'Przydział pracy',ctx:'Przy 50+ osobach ręczny przydział męczy.',o:['Tabela priorytetów 1–4 dla rodzajów pracy (jak RimWorld), przydział sam; ręcznie można przypiąć','Tylko ręczny przydział do budynków','Automatyczny, gracz ustala tylko proporcje']},
+{id:'O2',k:'osada',q:'Transport surowców',ctx:'',o:['Wspólny magazyn w kręgu światła; tragarze tylko do posterunków i karawan','Fizyczni tragarze w osadzie','Całkowicie abstrakcyjny']},
+{id:'O3',k:'osada',q:'Pożary i zawalenia',ctx:'',o:['Tak: ogień, Przypływ, zawalenie przy ataku Rozrostu','Tylko pożary','Nie']},
+{id:'O4',k:'osada',q:'Rozwój budynków',ctx:'',o:['Bez poziomów w epoce; przebudowa do kolejnej epoki za 60% kosztu nowego','Poziomy 1–3 w każdej epoce','Nowy budynek od zera w każdej epoce']},
+{id:'O5',k:'osada',q:'Choroby i epidemie',ctx:'',o:['Tak: zimą i w ciasnych domach, z Kwarantanną i Szpitalem','Tylko pojedyncze choroby','Nie']},
+{id:'O6',k:'osada',q:'Przestępczość',ctx:'',o:['Lekka: kradzieże racji przy głodzie, bójki, kary z praw','Rozbudowana, z gangami','Brak']},
+{id:'O7',k:'osada',q:'Pieniądz',ctx:'',o:['Bez pieniądza w osadzie (wymiana); sól Gildii jako waluta handlowa od Kuźni','Pieniądz od Pary','Pieniądz od początku']},
+{id:'O8',k:'osada',q:'Zmiana nocna',ctx:'',o:['Od Pary przy lampach gazowych','Od początku przy ogniu','Nigdy']},
+{id:'O9',k:'osada',q:'Drogi w osadzie',ctx:'',o:['Ścieżki powstają same od ruchu','Gracz układa drogi (szybszy ruch)','Bez dróg']},
+{id:'O10',k:'osada',q:'Wysokość terenu w osadzie',ctx:'',o:['Ma znaczenie: wzgórze lepsze na wieże, niecki zbierają Mgłę i wodę','Tylko wizualnie','Teren płaski']},
+{id:'O11',k:'osada',q:'Woda',ctx:'Symulacja pokazała, że po naprawie pompy woda przestaje się liczyć, więc Studnia jest prawie zbędna.',o:['Pompa psuje się co jakiś czas (wydarzenie, naprawa złomem), zimą zamarza','Zmniejszyć pompę do 6 wody dziennie','Usunąć wodę z gry jako zasób']},
+{id:'O12',k:'osada',q:'Budynki z zestawu części post-apo',ctx:'BUDYNKI.md: wygląd każdego budynku w każdej epoce.',o:['Akceptuję kierunek i opisy','Akceptuję kierunek, opisy do przejrzenia','Chcę innego podejścia (opisz)']},
+{id:'O13',k:'osada',q:'Racjonowanie a morale',ctx:'Symulacja: średni gracz (bez racjonowania) ma wyższe morale niż dobry, ale traci 2 osoby więcej.',o:['Zostaje tak: to dobry dylemat','Racjonowanie ma karać mniej','Racjonowanie ma karać bardziej']},
+// --- POLITYKA ---
+{id:'X1',k:'polityka',q:'64 nazwy ustrojów (USTROJE.md)',ctx:'Np. Arka Wybranych, Rój, Rada Kupiecka, Tron Mgły, Junta.',o:['Akceptuję jako robocze, poprawimy przy pisaniu tekstów','Chcę przejrzeć i zmienić część (opisz w opinii które)','Inny klucz nazewnictwa (opisz)']},
+{id:'X2',k:'polityka',q:'Przypisanie praw do 6 osi',ctx:'Każde prawo przesuwa osie. Dziś przypisane tylko do 3 starych osi.',o:['Claude przypisuje wszystkie prawa i dopisuje brakujące dla nowych osi, Ty przeglądasz','Robimy razem prawo po prawie','Najpierw tylko prawa potrzebne w epoce Złomu']},
+{id:'X3',k:'polityka',q:'Wersje komisarza',ctx:'Dawniej 6 wersji według ustroju (Politruk, Rzecznik, Żandarm, Komisarz, Kaznodzieja, Nadzorca).',o:['Wersję wyznaczają osie Władza i Porządek: 4 wersje (np. Rzecznik, Politruk, Żandarm, Komisarz); Kaznodzieja zależny od religii','Zostaje 6 wersji, przypisanych do kombinacji osi','Jeden komisarz, różne dostępne kary']},
+{id:'X4',k:'polityka',q:'Sejm: jak przechodzi prawo',ctx:'Przy aktywnej Demokracji.',o:['Głosowanie posłów z ruchów obywatelskich (liczba posłów ∝ poparciu); prawo potrzebuje większości; gracz może przekonywać ruchy przed głosowaniem','Referendum wszystkich mieszkańców','Sejm tylko doradza, prawo i tak przechodzi z karą do Legitymacji']},
+{id:'X5',k:'polityka',q:'Wybory i kadencje',ctx:'',o:['Wybory raz na porę roku (15 dni), kandydaci z ruchów, wybierany jest przewodniczący i rada','Raz w roku gry','Bez wyborów, Sejm z udziałem wszystkich']},
+{id:'X6',k:'polityka',q:'Autorytaryzm: napięcie i pucz',ctx:'',o:['Napięcie 0–100 rośnie od niepopularnych dekretów i porażek, spada od zwycięstw i święt; od 70 groźba puczu dowódców lub frakcji','Pucz tylko przez wydarzenia','Bez puczu, tylko spadek wydajności']},
+{id:'X7',k:'polityka',q:'Postać przywódcy',ctx:'',o:['W Autorytaryzmie jest przywódca z cechami (można go stracić, następca), w Demokracji wybierany przewodniczący; gracz to „wola osady”','Gracz zawsze gra przywódcą','Bez postaci przywódcy']},
+{id:'X8',k:'polityka',q:'Religia jako osobny system',ctx:'Ustalono, że religia nie jest osią. Trzeba ją zaprojektować.',o:['Lekka: 3 wiary wyrastające ze świata (Kult Latarni, Kościół Mgły, wiara przedwojenna), Kaplica, potrzeba wiary, kapłan jako wersja komisarza','Rozbudowana: dogmaty, herezje, święci, jak w Crusader Kings','Bez religii, tylko święta i Kronika']},
+{id:'X9',k:'polityka',q:'Odejście frakcji wewnętrznych',ctx:'',o:['Tak, niezadowolona frakcja może odejść i założyć osadę Dezerterów','Tylko pojedyncze osoby odchodzą','Nie']},
+{id:'X10',k:'polityka',q:'Zamach gracza',ctx:'Czy gracz może siłą zmienić ustrój.',o:['Tak, wydarzenie z dużym kosztem Legitymacji i ryzykiem buntu','Nie, ustrój zmienia się tylko przez prawa','Tak, bez kosztu przy aktywnej Dyscyplinie']},
+{id:'X11',k:'polityka',q:'Propaganda',ctx:'',o:['Przez budynki i prawa (plakaty, radiowęzeł, pomnik), bez osobnego zasobu','Punkty wpływu jako zasób','Bez propagandy']},
+{id:'X12',k:'polityka',q:'Podgląd skutków prawa',ctx:'',o:['Tak: zmiana osi, kto się ucieszy, kto zbuntuje (procent mieszkańców), zmiana Legitymacji i „głosy z ulicy”','Tylko zmiana osi','Nie, gracz ma się domyślać']},
+{id:'X13',k:'polityka',q:'Jak pokazać 6 osi w Ratuszu',ctx:'Trójkąt pasował do 3 osi.',o:['6 suwaków na kartce z pinezką kursu osady i rozrzutem poglądów mieszkańców pod spodem','Sześciokątny wykres (radar)','Lista biegunów z wartościami']},
+{id:'X14',k:'polityka',q:'Prawa nieodwracalne',ctx:'Oznaczone †.',o:['Około 10 praw nieodwracalnych (egzekucje publiczne, przetwarzanie zmarłych, rytualne mutacje, wygnanie zbędnych)','Wszystkie prawa odwracalne','Więcej nieodwracalnych']},
+// --- FRAKCJE ---
+{id:'F1',k:'frakcje',q:'Frakcje działają same na mapie',ctx:'',o:['Tak, z własnymi planami (rajdy, handel, sojusze, wojny między sobą)','Tylko reagują na gracza','Statyczne, stoją w swoich miejscach']},
+{id:'F2',k:'frakcje',q:'Wzrost i upadek frakcji',ctx:'',o:['Rosną i giną bez gracza, ale wolno; mogą wchłonąć inną','Zawsze istnieją do końca','Szybka dynamika, mapa mocno się zmienia']},
+{id:'F3',k:'frakcje',q:'Ile frakcji w kampanii',ctx:'',o:['6–8 z 11, losowanych na start, plus stałe Zakon Latarników i Chór Mgły','Wszystkie 11 zawsze','4–5, głębsze']},
+{id:'F4',k:'frakcje',q:'Epoki frakcji',ctx:'',o:['Frakcje też się rozwijają, wolniej niż gracz (Zakon zawsze 2 epoki przed graczem)','Każda frakcja w stałej epoce','Rosną razem z graczem']},
+{id:'F5',k:'frakcje',q:'Szabrownicy',ctx:'Cel: łup. Rajdy na karawany i posterunki, unikają silnych. Epoka Złomu. Po śmierci Herszta się rozpadają.',o:['Akceptuję; wracają co porę roku z nowym Hersztem, część może przyłączyć się do osady','Akceptuję bez powrotów','Zmiana (opisz)']},
+{id:'F6',k:'frakcje',q:'Synowie Czystości',ctx:'Cel: wytępić Przemianę. Krucjaty, żądania wydania zmutowanych. Kuźnia–Proch.',o:['Akceptuję; mogą być sojusznikiem przy Czystości kosztem czystek; Wielki Inkwizytor jako boss','Akceptuję, zawsze wrodzy','Zmiana (opisz)']},
+{id:'F7',k:'frakcje',q:'Chór Mgły',ctx:'Cel: przyspieszyć Przemianę. Misjonarze, nawracanie, ataki z mutantami. Para.',o:['Akceptuję; naturalny sojusznik przy Przemianie; Prorok Chóru jako boss','Akceptuję, zawsze wrodzy','Zmiana (opisz)']},
+{id:'F8',k:'frakcje',q:'Ludzie Toru',ctx:'Cel: kontrola torów i handlu. Pociąg po pętli, najemnicy, myto. Para.',o:['Akceptuję; pociąg można zdobyć, ale bardzo trudno, a bez nich tory pustoszeją','Akceptuję, pociągu nie da się zdobyć','Zmiana (opisz)']},
+{id:'F9',k:'frakcje',q:'Łowcy Głów',ctx:'Cel: ludzie na sprzedaż. Porwania z karawan i obrzeży. Kuźnia.',o:['Akceptuję; można od nich kupować ludzi kosztem Legitymacji (taniej przy Indywidualizmie)','Akceptuję bez handlu ludźmi','Zmiana (opisz)']},
+{id:'F10',k:'frakcje',q:'Zakon Latarników',ctx:'Cel: monopol na paliwo i światło. Przejmowanie latarni, wasalstwo. Silnik.',o:['Akceptuję; zna część prawdy o Latarniach (droga do Teorii Światła)','Akceptuję bez wiedzy o lore','Zmiana (opisz)']},
+{id:'F11',k:'frakcje',q:'Dezerterzy',ctx:'Twoi wygnańcy, znają słabe punkty osady. Twoja epoka.',o:['Akceptuję; można ich przywrócić wydarzeniem i amnestią','Akceptuję bez powrotu','Zmiana (opisz)']},
+{id:'F12',k:'frakcje',q:'Bractwo Bunkra',ctx:'Cel: przetrwać, przedwojenny porządek. Izolacja, wyprawy po sprzęt. Nabój.',o:['Akceptuję; obcych przyjmują tylko po długiej przyjaźni','Akceptuję, otwarci na handel','Zmiana (opisz)']},
+{id:'F13',k:'frakcje',q:'Gildia Solna',ctx:'Cel: zysk i szlaki. Karawany, kontrakty, kredyt. Proch.',o:['Akceptuję; może zadłużyć gracza, długi spłacane towarem, niespłacone kończą się najazdem najemników','Akceptuję bez długów','Zmiana (opisz)']},
+{id:'F14',k:'frakcje',q:'Dzieci Lasu',ctx:'Cel: żyć z Mgłą w lesie. Pułapki, zioła, wrogość do wyrębu. Złom–Kuźnia.',o:['Akceptuję; wyrąb lasu psuje relacje','Akceptuję bez kary za wyrąb','Zmiana (opisz)']},
+{id:'F15',k:'frakcje',q:'Republika Tamy',ctx:'Cel: własna sieć światła, rywalizacja o ludzi. Silnik.',o:['Akceptuję; połączenie sieci to droga do zakończenia Sieć latarni','Akceptuję, zawsze rywal','Zmiana (opisz)']},
+{id:'F16',k:'frakcje',q:'Przywódcy frakcji',ctx:'',o:['Każda frakcja ma przywódcę i 2–3 nazwanych dowódców z historią','Tylko przywódca','Bez nazwanych postaci']},
+// --- MAPA ---
+{id:'M1',k:'mapa',q:'Wielkość regionu',ctx:'',o:['Do wyboru: mały (100 węzłów), średni (180), duży (250)','Zawsze około 180','Zawsze 250']},
+{id:'M2',k:'mapa',q:'Czas przejścia drogi',ctx:'',o:['2–8 godzin gry na drogę','1–3 godziny','Pół dnia do dnia']},
+{id:'M3',k:'mapa',q:'Składy na mapie',ctx:'',o:['Pionki ruszają się na żywo, czas płynie','Ruch skokowy po turach','Tylko ikona celu i licznik']},
+{id:'M4',k:'mapa',q:'Miejsca jednorazowe',ctx:'Skrytki, wraki, bunkry.',o:['20–30 na region','Mało (5–10), cenne','Dużo (50+)']},
+{id:'M5',k:'mapa',q:'Pogoda na mapie',ctx:'',o:['Fronty pogodowe przesuwają się po regionie i zmieniają czas przejścia','Pogoda tylko jako pora roku','Bez pogody']},
+{id:'M6',k:'mapa',q:'Przypływ na mapie',ctx:'',o:['Widoczna fala Mgły z zapowiedzią na 1 dzień, zalewa drogi','Tylko komunikat','Fala bez zapowiedzi']},
+{id:'M7',k:'mapa',q:'Generator regionu',ctx:'Stałe miejsca fabuły plus moduły (osiedle, PGR, most, kościół, stacja, bunkier).',o:['Strefy (miasto, wieś, las, bagna, przemysł) rosnące ku Sercu Mgły, moduły dobierane według strefy i gęstości Mgły','Ręcznie zrobione mapy, losowe tylko wydarzenia','W pełni losowy']},
+{id:'M8',k:'mapa',q:'Przechwytywanie karawan frakcji',ctx:'',o:['Tak, jako rajd z konsekwencjami dyplomatycznymi','Nie']},
+// --- EPOKI ---
+{id:'E1',k:'epoki',q:'Zawartość epok (EPOKI.md)',ctx:'Technologie w fazach, wybory, budynki, sprzęt. Koszty od Prochu obcięte o połowę.',o:['Akceptuję jako bazę do balansu','Chcę przejrzeć epokę po epoce','Za dużo technologii, przyciąć']},
+{id:'E2',k:'epoki',q:'Plansza epoki',ctx:'',o:['Cała widoczna od razu, przyszłe fazy zamazane','Widać tylko obecną fazę','Wszystko widoczne']},
+{id:'E3',k:'epoki',q:'Porażka próby przełomu',ctx:'Np. pęknięta dymarka, wybuch wytwórni prochu.',o:['Może zabić: 10–20% szans na ofiary przy porażce','Tylko straty materiałów i czasu','Często zabija, wysoka stawka']},
+{id:'E4',k:'epoki',q:'Fałszywe plany z wypraw',ctx:'',o:['Tak, rzadko; wykrywa je ktoś z Nauką 6+','Nie']},
+{id:'E5',k:'epoki',q:'Tempo badań',ctx:'Badacz: 2 × Nauka punktów dziennie, każda epoka +25–100% (Pracownia, Laboratorium).',o:['Akceptuję (UZUPELNIENIA.md, tabela tempa)','Szybciej','Wolniej']},
+{id:'E6',k:'epoki',q:'Cofanie epoki',ctx:'',o:['Nie, wiedza nie znika','Tak, przy utracie budynków kluczowych']},
+// --- WROGOWIE ---
+{id:'R1',k:'wrogowie',q:'Poziom zagrożenia z czasem',ctx:'',o:['Rośnie przez Przypływy i „Mgła się uczy”, a nie przez sztuczne skalowanie statystyk','Wrogowie silniejsi co porę roku','Stały']},
+{id:'R2',k:'wrogowie',q:'Bossowie',ctx:'Topielec, Wędrujący Las, Wielki Pasterz, Prorok, Inkwizytor, Matka Roju, Serce Mgły.',o:['2–3 fazy walki każdy','Jedna faza, ale unikalna mechanika','Bez faz']},
+{id:'R3',k:'wrogowie',q:'Wędrujące stada mutantów',ctx:'',o:['Tak, widoczne na mapie po zwiadzie','Tylko w lokacjach']},
+{id:'R4',k:'wrogowie',q:'Nowi wrogowie (Gawra, Wodnik, Szerszenie, Tkacz, Gruczolak)',ctx:'Propozycje w WROGOWIE.md.',o:['Dodać wszystkich 5','Dodać część (opisz)','Nie dodawać, mamy dość']},
+// --- BRON ---
+{id:'B1',k:'bron',q:'Warianty broni i modyfikacje (BRON.md)',ctx:'',o:['Akceptuję','Do przejrzenia','Za dużo wariantów']},
+{id:'B2',k:'bron',q:'Imiona broni',ctx:'„Stary karabin Zenka”.',o:['Broń, która zabiła wielu, zyskuje imię i premię do morale właściciela','Tylko imiona, bez premii','Nie']},
+{id:'B3',k:'bron',q:'Typy amunicji',ctx:'',o:['Od Naboju: zwykła, zapalająca, przeciwpancerna','Od Prochu','Bez typów']},
+{id:'B4',k:'bron',q:'Przeróbki sprzętu',ctx:'Np. obrzyn ze strzelby.',o:['Tak, w warsztacie','Nie']},
+// --- UI ---
+{id:'U1',k:'ui',q:'Stałe strefy ekranu',ctx:'Góra: czas i zapasy, lewa kolumna: zakładki, prawa: panel kontekstowy, dół: alarmy.',o:['Akceptuję','Inny układ (opisz)']},
+{id:'U2',k:'ui',q:'Interfejs reaguje na stan osady',ctx:'Brud papieru przy głodzie, plamy tkanki przy Odmienności, czerwone pieczątki przy zagrożeniu.',o:['Tak, wszystko','Tylko delikatnie','Nie']},
+{id:'U3',k:'ui',q:'Animacje interfejsu',ctx:'Wsuwanie kartki, pieczątka, przewracanie strony, migotanie lampy, Mgła na krawędziach, drżenie przy alarmie, wsiąkający atrament.',o:['Wszystkie','Tylko najważniejsze (pieczątka, kartka, alarm)','Bez animacji']},
+{id:'U4',k:'ui',q:'Przedmioty na biurku',ctx:'',o:['Mają znaczenie (lampa = paliwo, kubek = morale, zegar = pora dnia)','Tylko ozdoba','Bez biurka']},
+{id:'U5',k:'ui',q:'Pismo odręczne',ctx:'',o:['Tylko w notatkach i podpisach, liczby zawsze drukiem','Dużo pisma odręcznego','Bez']},
+{id:'U6',k:'ui',q:'Powiadomienia',ctx:'',o:['Kartki przypinane do tablicy','Wyskakujące okienka','Lista w rogu']},
+{id:'U7',k:'ui',q:'Minimapa osady',ctx:'',o:['Bez minimapy, krąg światła jest mapą, z przybliżaniem','Mała minimapa w rogu']},
+{id:'U8',k:'ui',q:'Brakujące makiety',ctx:'Zbrojownia, Zeszyty (Badania, Bestiariusz, Kronika), panel budynku, dyplomacja na mapie, Akademia.',o:['Zrobić w interfejsie v2 przed etapem osady','Od razu w Godocie, bez makiet HTML','Tylko Zbrojownia i panel budynku teraz']},
+{id:'U9',k:'ui',q:'Statystyki kampanii',ctx:'',o:['W Kronice','Osobny ekran','Bez']},
+// --- GRAFIKA ---
+{id:'G1',k:'grafika',q:'Test shadera przed nowymi modelami',ctx:'Wszystko, co ładnie wygląda, to dziś wypiekany render z Blendera. W Godocie na żywo może wyglądać inaczej.',o:['Tak, najpierw test na 3 modelach, potem decyzje o modelach','Równolegle z nowymi modelami','Najpierw nowe modele']},
+{id:'G2',k:'grafika',q:'Postacie w bitwie są małe i zlewają się',ctx:'Uwaga z analizy renderów.',o:['Większe przybliżenie domyślne, mocniejsze barwy składu, obwódki pod jednostkami','Większe postacie względem budynków','Zostaje, to kwestia kamery']},
+{id:'G3',k:'grafika',q:'Zmutowani w osadzie',ctx:'',o:['Mutacje widoczne na modelu (trzecie ramię, chityna, świecące oczy)','Tylko w aktach']},
+// --- DZWIEK ---
+{id:'D1',k:'dzwiek',q:'Styl muzyki',ctx:'',o:['Ambient, akordeon, smyczki i drony; w walce perkusja i niskie tony','Elektronika i industrial','Prawie bez muzyki, dźwięki otoczenia']},
+{id:'D2',k:'dzwiek',q:'Głosy postaci',ctx:'',o:['Krótkie okrzyki po polsku (nagrane albo syntezowane), reszta tekstem','Pełne dialogi głosowe','Bez głosów']},
+{id:'D3',k:'dzwiek',q:'Dźwięk Mgły',ctx:'',o:['Szum i szepty, które nasilają się z Odmiennością','Tylko wiatr','Cisza']},
+{id:'D4',k:'dzwiek',q:'Dźwięki interfejsu',ctx:'',o:['Maszyna do pisania, papier, pieczątka','Neutralne kliknięcia','Bez']},
+// --- FABULA ---
+{id:'Z1',k:'fabula',q:'Pula około 155 wydarzeń (WYDARZENIA.md, UZUPELNIENIA.md)',ctx:'',o:['Akceptuję jako bazę; rozpisać do 250 później','Do przejrzenia kategoria po kategorii','Za dużo, mniej ale lepszych']},
+{id:'Z2',k:'fabula',q:'Narrator',ctx:'',o:['Tekstowy kronikarz osady komentuje dni w Kronice','Narrator głosowy','Bez narratora']},
+{id:'Z3',k:'fabula',q:'Archiwum Zasłony',ctx:'Zbieranie strzępów prawdy o Mgle z wypraw.',o:['Tak, fragmenty sprzeczne ze sobą, odblokowują zakończenia','Tak, ale prosto, jako kolekcja','Nie']},
+{id:'Z4',k:'fabula',q:'Przemoc wobec dzieci na ekranie',ctx:'Ustalono: treści drażliwe pokazywane wprost. Propozycja: przemoc wobec dzieci nigdy na ekranie, bo blokuje wydanie w wielu sklepach.',o:['Zgoda: przemoc wobec dzieci tylko w tekście, nigdy jako scena','Pokazywać wprost jak resztę','Wyłączalne w ustawieniach']},
+// --- KAMPANIA ---
+{id:'K1',k:'kampania',q:'Poziomy trudności',ctx:'',o:['Kronika (łatwiej), Latarnia (zwykły), Mgła (twardy)','Tylko jeden poziom','Pełne suwaki']},
+{id:'K2',k:'kampania',q:'Tryb żelazny',ctx:'Jeden zapis, bez wczytywania.',o:['Opcjonalny','Zawsze','Brak']},
+{id:'K3',k:'kampania',q:'Starty kampanii',ctx:'',o:['3 starty: Uciekinierzy (10 osób, mało zapasów), Kolejarze (8 osób, wagon z narzędziami), Odmieńcy (osada zmutowanych)','Jeden start','Dowolny edytor startu']},
+{id:'K4',k:'kampania',q:'Ustawienia kampanii',ctx:'Ziarno, wielkość regionu, częstość Przypływów.',o:['Wszystkie do ustawienia','Tylko ziarno i wielkość','Brak']},
+{id:'K5',k:'kampania',q:'Zwycięstwo',ctx:'',o:['Tylko 3 zakończenia i porażki, bez punktów','Dodatkowo zwycięstwo punktowe']},
+{id:'K6',k:'kampania',q:'Gra po zakończeniu',ctx:'',o:['Tak, tryb „po końcu świata”','Nie, kampania się kończy']},
+// --- WYDANIE ---
+{id:'Y1',k:'wydanie',q:'Cel projektu',ctx:'Wpływa na treści drażliwe, zakres, dźwięk.',o:['Gra do wydania na Steam','Projekt dla siebie i znajomych','Na razie nie wiem']},
+{id:'Y2',k:'wydanie',q:'Język gry',ctx:'',o:['Polski na start, angielski przed wydaniem (teksty w plikach)','Tylko polski','Od razu polski i angielski']},
+{id:'Y3',k:'wydanie',q:'Wersja demo',ctx:'',o:['Pionowy wycinek Złomu jako demo (jedna zima, jeden region)','Bez dema','Wczesny dostęp zamiast dema']},
+];
+
+const KLUCZ='latarnia_ankieta_v1';let A={};let db=null,dbDoc=null,tZap=null;
+try{A=JSON.parse(localStorage.getItem(KLUCZ)||'{}')}catch(e){A={}}
+const $=s=>document.querySelector(s);const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function zapisz(){try{localStorage.setItem(KLUCZ,JSON.stringify(A))}catch(e){}
+ clearTimeout(tZap);tZap=setTimeout(async()=>{if(dbDoc){try{await dbDoc.set({odpowiedzi:A,zmiana:new Date().toISOString()});$('#stan').textContent='zapisano w bazie strony ✓'}catch(e){$('#stan').textContent='zapis lokalny (baza niedostępna)'}}else $('#stan').textContent='zapisano w tej przeglądarce ✓'},700)}
+function gotowe(id){const a=A[id];return a&&(a.w!==undefined&&a.w!==null)}
+function render(){const f=$('#filtr').value;let html='',nav='';
+ for(const [k,naz] of KAT){const qs=Q.filter(q=>q.k===k);const ok=qs.filter(q=>gotowe(q.id)).length;
+  nav+=`<a href="#s-${k}" class="${ok===qs.length?'ok':''}"><span>${esc(naz)}</span><small>${ok}/${qs.length}</small></a>`;
+  const widoczne=qs.filter(q=>f==='all'||(f==='open'&&!gotowe(q.id))||(f==='talk'&&A[q.id]&&A[q.id].t));
+  if(!widoczne.length)continue;
+  html+=`<section id="s-${k}"><h2><span>${esc(naz)}</span><button data-pol="${k}">Zatwierdź polecane w tej kategorii (bez odpowiedzi)</button></h2>`;
+  for(const q of widoczne){const a=A[q.id]||{};const opcje=[...q.o,'Inaczej (opisz w polu niżej)'];
+   html+=`<div class="karta ${gotowe(q.id)?'done':''} ${a.t?'talk':''}" id="k-${q.id}"><label class="flag"><input type="checkbox" data-talk="${q.id}" ${a.t?'checked':''}> do omówienia</label>
+   <div class="id">${q.id}</div><div class="q">${esc(q.q)}</div>${q.ctx?`<div class="ctx">${esc(q.ctx)}</div>`:''}`;
+   opcje.forEach((o,i)=>{html+=`<label class="op ${a.w===i?'sel':''}"><input type="radio" name="${q.id}" value="${i}" ${a.w===i?'checked':''}><span>${esc(o)}${i===0?'<span class="rec">polecane</span>':''}</span></label>`});
+   html+=`<div class="opn"><textarea data-op="${q.id}" placeholder="Twoja opinia (opcjonalnie)…">${esc(a.o||'')}</textarea><button class="mic" data-mic="${q.id}" title="Dyktuj (Chrome/Edge z pliku lokalnego)">🎤</button></div></div>`}
+  html+='</section>'}
+ $('#main').innerHTML=html||'<div class="karta">Brak pytań w tym widoku. 🎉</div>';$('#nav').innerHTML=nav;licz()}
+function licz(){const n=Q.filter(q=>gotowe(q.id)).length;$('#licz').textContent=`Odpowiedzi: ${n} / ${Q.length}`;$('#pasek').style.width=(100*n/Q.length)+'%';
+ for(const [k] of KAT){}}
+document.addEventListener('change',e=>{const t=e.target;
+ if(t.type==='radio'){const id=t.name;A[id]=A[id]||{};A[id].w=+t.value;zapisz();const k=$('#k-'+id);k.classList.add('done');k.querySelectorAll('label.op').forEach((l,i)=>l.classList.toggle('sel',i===+t.value));licz();odswNav()}
+ if(t.dataset.talk){const id=t.dataset.talk;A[id]=A[id]||{};A[id].t=t.checked;zapisz();$('#k-'+id).classList.toggle('talk',t.checked)}});
+document.addEventListener('input',e=>{const t=e.target;if(t.dataset.op){const id=t.dataset.op;A[id]=A[id]||{};A[id].o=t.value;zapisz()}});
+function odswNav(){const sc=window.scrollY;const f=$('#filtr').value;let nav='';for(const [k,naz] of KAT){const qs=Q.filter(q=>q.k===k);const ok=qs.filter(q=>gotowe(q.id)).length;nav+=`<a href="#s-${k}" class="${ok===qs.length?'ok':''}"><span>${esc(naz)}</span><small>${ok}/${qs.length}</small></a>`}$('#nav').innerHTML=nav}
+document.addEventListener('click',e=>{const t=e.target.closest('button');if(!t)return;
+ if(t.dataset.pol){Q.filter(q=>q.k===t.dataset.pol&&!gotowe(q.id)).forEach(q=>{A[q.id]=A[q.id]||{};A[q.id].w=0});zapisz();const y=window.scrollY;render();window.scrollTo(0,y)}
+ if(t.dataset.mic)mikrofon(t.dataset.mic,t)});
+$('#filtr').onchange=render;
+// --- mikrofon ---
+let rec=null,recId=null;
+function mikrofon(id,btn){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(!SR){alertBox('Ta przeglądarka nie ma rozpoznawania mowy. Kliknij w pole i naciśnij Win + H (dyktowanie Windows).');return}
+ if(rec){rec.stop();return}
+ const ta=document.querySelector(`textarea[data-op="${id}"]`);const base=ta.value?ta.value.replace(/\s*$/,' '):'';
+ try{rec=new SR()}catch(e){alertBox('Mikrofon niedostępny tutaj. Użyj Win + H albo otwórz plik z folderu w Chrome/Edge.');return}
+ rec.lang='pl-PL';rec.continuous=true;rec.interimResults=true;recId=id;btn.classList.add('on');let fin='';
+ rec.onresult=ev=>{let tmp='';for(let i=ev.resultIndex;i<ev.results.length;i++){const r=ev.results[i];if(r.isFinal)fin+=r[0].transcript+' ';else tmp+=r[0].transcript}ta.value=base+fin+tmp;A[id]=A[id]||{};A[id].o=ta.value;zapisz()};
+ rec.onerror=ev=>{if(ev.error==='not-allowed'||ev.error==='service-not-allowed')alertBox('Brak zgody na mikrofon w tym widoku. Użyj Win + H albo otwórz plik z folderu w Chrome/Edge.')};
+ rec.onend=()=>{btn.classList.remove('on');rec=null};try{rec.start()}catch(e){btn.classList.remove('on');rec=null;alertBox('Nie udało się włączyć mikrofonu. Użyj Win + H.')}}
+function alertBox(m){$('#stan').textContent=m}
+// --- eksport ---
+function markdown(){let s=`# Latarnia: odpowiedzi na decyzje przed startem\n\nWypełniono: ${Q.filter(q=>gotowe(q.id)).length} / ${Q.length} (${new Date().toLocaleString('pl-PL')})\n`;
+ for(const [k,naz] of KAT){s+=`\n## ${naz}\n`;for(const q of Q.filter(q=>q.k===k)){const a=A[q.id]||{};const opcje=[...q.o,'Inaczej'];
+  const w=(a.w!==undefined&&a.w!==null)?opcje[a.w]+(a.w===0?' (polecane)':''):'— brak odpowiedzi —';
+  s+=`- **${q.id} ${q.q}:** ${w}${a.t?' · DO OMÓWIENIA':''}${a.o?`\n  - opinia: ${a.o.replace(/\n/g,' ')}`:''}\n`}}return s}
+$('#btnEks').onclick=()=>{const m=markdown();$('#eksTxt').value=m;try{$('#btnPob').href=URL.createObjectURL(new Blob([m],{type:'text/markdown'}))}catch(e){}if(window.claude&&window.claude.use)$('#btnPob').style.display='none';$('#eksport').style.display='block'};
+$('#btnZam').onclick=()=>$('#eksport').style.display='none';
+$('#btnKop').onclick=async()=>{try{await navigator.clipboard.writeText($('#eksTxt').value);$('#kopStan').textContent='skopiowano ✓'}catch(e){$('#eksTxt').select();$('#kopStan').textContent='zaznaczono – naciśnij Ctrl+C'}};
+render();
+// --- baza strony (claude.ai): odczyt i zapis, żeby Claude mógł przeczytać odpowiedzi ---
+(async()=>{try{if(!window.claude||!window.claude.use)return;db=await window.claude.use('db');if(!db)return;dbDoc=db.doc('ankieta/odpowiedzi');
+ const snap=await Promise.race([dbDoc.get(),new Promise((_,r)=>setTimeout(()=>r('t'),10000))]);const d=snap&&(snap.data?snap.data():snap);
+ if(d&&d.odpowiedzi){for(const [id,v] of Object.entries(d.odpowiedzi)){if(!A[id])A[id]=v}render()}
+ $('#stan').textContent='połączono z bazą strony ✓';if(Object.keys(A).length)zapisz()}catch(e){}})();
+</script></body></html>
