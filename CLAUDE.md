@@ -48,7 +48,7 @@ Latarnia to gra o zarządzaniu osadą post-apo w fikcyjnej Europie Środkowej, g
 
 ## Stan projektu (8 listopada 2026)
 
-Koncept jest domknięty po ankiecie 146 pytań (`docs/ODPOWIEDZI_2026-11-08.md`, sekcja „Decyzje z ankiety” w koncepcie, `docs/DECYZJE_2026-11-08.md`). Test shadera zrobiony (`docs/TEST_SHADERA.md`). **Prototyp walki: symulacja i AI dowódcy są w `game/sim` (C#, bez Godota), opis, wyniki i otwarte problemy w `docs/PROTOTYP_WALKI.md`.** Użytkownik priorytetowo traktuje jakość AI. Środowisko instaluje `narzedzia/setup_srodowiska.sh`.
+Koncept jest domknięty po ankiecie 146 pytań (`docs/ODPOWIEDZI_2026-11-08.md`, sekcja „Decyzje z ankiety” w koncepcie, `docs/DECYZJE_2026-11-08.md`). Test shadera zrobiony (`docs/TEST_SHADERA.md`). **Prototyp walki: symulacja i AI dowódcy są w `game/sim` (C#, bez Godota), opis, wyniki i otwarte problemy w `docs/PROTOTYP_WALKI.md`.** **Symulator bitew w 3D (Godot + C#, edytor składu, bitwa z modelami i animacjami, raport) jest w `game/symulator`, opis w `docs/SYMULATOR.md`.** Użytkownik priorytetowo traktuje jakość AI. Środowisko instaluje `narzedzia/setup_srodowiska.sh`.
 
 ### Wcześniej (6 listopada)
 
@@ -74,7 +74,7 @@ Zrobione:
   - wszystko wyeksportowane do `.glb` (`assets/latarnia_modele_godot.zip`).
 - **Makiety interfejsu:** 7 klikalnych ekranów: Osada, Ludzie, Kompleks, Walka, Raport, Mapa, Ratusz (`assets/latarnia_makiety_ui.zip`). Użytkownik zgłosił do nich uwagi, które są w `docs/DO_ZROBIENIA.md`.
 
-**Kod gry:** symulacja walki w `game/sim` (C#). Widoku walki w Godocie jeszcze nie ma (jest tylko test shadera w `game/shader_test`).
+**Kod gry:** symulacja walki w `game/sim` (C#) i symulator bitew 3D w `game/symulator` (Godot 4.7 .NET, odwołuje się do `game/sim`). Test shadera w `game/shader_test`.
 
 ## Zawartość folderu
 
@@ -105,6 +105,8 @@ narzedzia/setup_srodowiska.sh     instalacja Godota, .NET, Blendera w nowej sesj
 narzedzia/replay_gif.py           podgląd walki z góry: JSON z `Latarnia.Tools replay` → GIF
 game/sim/                         symulacja walki i AI (C#): Latarnia.Sim, Tools, Tests
 docs/PROTOTYP_WALKI.md            prototyp walki: jak uruchomić, architektura AI, wyniki 1000 walk, ocena
+game/symulator/                   symulator bitew 3D w Godocie (edytor, bitwa, raport), README z uruchomieniem
+docs/SYMULATOR.md                 symulator: animacje, klasy i zdolności, edytor, szczera ocena, do decyzji
 docs/DO_ZROBIENIA.md              lista otwartych zadań
 docs/PRZED_STARTEM.md             co trzeba ustalić i zrobić przed startem gry (A blokuje prototyp walki)
 docs/PLAN_BUDOWY_GRY.md           architektura i kamienie milowe w Godocie

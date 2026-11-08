@@ -25,6 +25,8 @@ public sealed class Projectile
     public int TargetId; public bool WillHit; public WeaponDef Weapon = Weapons.PipeBow; public bool Done;
 }
 
+/// <summary>Zdarzenie dla widoku (animacje, efekty): kto, komu, gdzie. Lista czyszczona na początku każdego kroku.</summary>
+public sealed record FxEvent(string Kind, int A, int T, Vec2 Pos, string Info = "");
 public sealed record Flare(Vec2 Pos, float Radius, float Until, int By);
 public sealed record Noise(Vec2 Pos, float Radius, float Time, Team Team, string What);
 
@@ -47,6 +49,8 @@ public sealed class Battle
     public readonly List<(float t, Action<Battle> a)> Schedule = new();
     public readonly Dictionary<string, float> Shared = new();
     public readonly List<Flare> Flares = new();
+    public readonly List<FxEvent> Fx = new();
+    public void Emit(string kind, int a, int t, Vec2 pos, string info = "") => Fx.Add(new FxEvent(kind, a, t, pos, info));
     /// <summary>Światło latarni plus flary (flara: 10 m, 20 s, gaśnie pod koniec).</summary>
     public float LightAt(Vec2 p)
     {
@@ -77,7 +81,7 @@ public sealed class Battle
     public void Step()
     {
         if (Over) return;
-        Time += Dt; Tick++;
+        Time += Dt; Tick++; Fx.Clear();
         for (int i = Schedule.Count - 1; i >= 0; i--) if (Time >= Schedule[i].t) { var a = Schedule[i].a; Schedule.RemoveAt(i); a(this); }
         // 1. percepcja: każdy co 0,25 s, rozłożone na ticki
         foreach (var f in All) if (f.Active && (f.Id + Tick) % 5 == 0) Perceive(f);
@@ -115,6 +119,7 @@ public sealed class Battle
         if (target.Kind == Kind.Nosiciel) r = MathF.Max(r, 16f);   // fosforyzujące wrzody: widać go z daleka
         if (Time < target.RevealedUntil) r = MathF.Max(r, 26f);   // po krzyku gruczoły świecą
         if (target.Kind == Kind.Rat) r *= 0.8f;
+        if (f.Has(Ability.Wypatrywanie)) r *= 1.25f;
         if (target.Crouch) r *= 0.85f;
         return r;
     }
@@ -139,7 +144,7 @@ public sealed class Battle
         foreach (var n in Noises)
         {
             if (n.Team == f.Team) continue;
-            float hearR = n.Radius * (0.7f + f.S.Perception * 0.06f);
+            float hearR = n.Radius * (0.7f + f.S.Perception * 0.06f) * (f.Has(Ability.Trop) ? 1.5f : 1f);
             if (Vec2.Dist(n.Pos, f.Pos) < hearR)
                 f.Heard[-1 - (int)(n.Pos.X * 10) - (int)(n.Pos.Y * 1000)] = (n.Pos + new Vec2(Rng.Range(-2, 2), Rng.Range(-2, 2)), Time);
         }
@@ -197,6 +202,7 @@ public sealed class Battle
         if (!Map.Walkable(np)) { np = f.Pos + new Vec2(step.X, 0); if (!Map.Walkable(np)) np = f.Pos + new Vec2(0, step.Y); if (!Map.Walkable(np)) np = f.Pos; }
         if ((Map.Get(np) & Cell.LowCover) != 0) np = f.Pos + step * 0.35f;   // przełażenie
         f.Vel = (np - f.Pos) / Dt; f.Pos = np;
+        if (f.Vel.LengthSq > 0.2f) f.StillSince = Time;
         if (f.Vel.LengthSq > 0.05f && f.TargetId < 0) f.Facing = MathX.MoveTowardsAngle(f.Facing, f.Vel.Angle, 6f * Dt);
         if (run && f.IsHuman) f.Fatigue += Dt * (1.2f - f.S.Endurance * 0.06f);
     }
@@ -253,28 +259,56 @@ public sealed class Battle
         var w = a.Current;
         a.Cooldown = w.Interval * (1f + MathX.Clamp01(a.Fatigue / 100f) * 0.4f) * (a.ArmDisabled ? 1.6f : 1f);
         a.Facing = (t.Pos - a.Pos).Angle;
+        // Cichy łowca: od tyłu, cel nieświadomy -> wyłączony bez hałasu
+        float back = MathF.Abs(MathX.AngleDiff(t.Facing, (a.Pos - t.Pos).Angle));
+        if (a.Ready(Ability.CicheZabicie, Time) && back > 2.0f && !t.Seen.Contains(a.Id) && t.Status == Status.Ok && t.Kind != Kind.Nosiciel)
+        {
+            a.Use(Ability.CicheZabicie, Time, 30);
+            Emit("swing", a.Id, t.Id, t.Pos, "hit"); Emit("ability", a.Id, t.Id, a.Pos, "Ciche zabicie");
+            Log.Event(Time, LogKind.Wound, a.Id, t.Id, $"{a.Name}: ciche zabicie ({t.Name})");
+            if (t.IsHuman) { t.Wounds.Add(new Wound(Zone.Torso, Severity.Fatal, Time, "ciche zabicie")); t.Bleed += 2.6f; Incapacitate(t, a); } else Kill(t, a, "ciche zabicie");
+            return;
+        }
         MakeNoise(a.Pos, w.Noise, a.Team, "cios");
         int atk = a.Creature?.MeleeSkill ?? a.S.Melee, def = t.Creature?.MeleeSkill ?? t.S.Melee;
-        float p = 0.46f + (atk - def) * 0.05f;
-        // tarcza działa, gdy obrońca jest zwrócony do napastnika
-        if (t.Current.Block > 0 && MathF.Abs(MathX.AngleDiff(t.Facing, (a.Pos - t.Pos).Angle)) < 1.2f) p -= t.Current.Block * 0.11f + ShieldWallBonus(t);
-        // dzida zatrzymuje szarżę: pierwszy cios w nacierające zwierzę z premią
+        float p = 0.46f + (atk - def) * 0.05f + a.NextStrikeBonus;
+        float pShield = 0;
+        if (t.Current.Block > 0 && MathF.Abs(MathX.AngleDiff(t.Facing, (a.Pos - t.Pos).Angle)) < 1.2f) { pShield = t.Current.Block * 0.11f + ShieldWallBonus(t); p -= pShield; }
         if (w.StopsCharge && !t.IsHuman && t.Vel.Length > 4f) p += 0.22f;
         if (t.Status != Status.Ok) p += 0.3f;
-        // cios z boku i od tyłu: tu działa szyk (krąg i linia nie mają odsłoniętych pleców)
+        if (t.Crouch) p -= 0.05f;
+        p -= MathX.Clamp01(a.Fatigue / 100f) * 0.15f;
         if (t.Status == Status.Ok)
         {
-            float back = MathF.Abs(MathX.AngleDiff(t.Facing, (a.Pos - t.Pos).Angle));
             if (back > 2.0f) p += 0.22f; else if (back > 1.3f) p += 0.1f;
             int ganging = 0;
             foreach (var o in All) if (o != a && o.Active && o.Team == a.Team && Vec2.Dist(o.Pos, t.Pos) < 1.8f) ganging++;
             p += MathF.Min(ganging, 3) * 0.05f;
+            // Zasłona: tarczownik obok celu przyjmuje część ciosów z przodu
+            foreach (var o in All)
+                if (o != t && o.Active && o.Team == t.Team && o.Has(Ability.Zaslona) && Vec2.Dist(o.Pos, t.Pos) < 1.5f && MathF.Abs(MathX.AngleDiff(o.Facing, (a.Pos - o.Pos).Angle)) < 1.2f)
+                { p *= 0.6f; break; }
         }
-        if (t.Crouch) p -= 0.05f;
-        p -= MathX.Clamp01(a.Fatigue / 100f) * 0.15f;
-        if (!Rng.Chance(MathX.Clamp(p, 0.08f, 0.95f))) return;
-        Hit(a, t, w, melee: true);
-        if (w.Stuns && t.IsHuman && Rng.Chance(0.25f)) t.StunUntil = Time + 1.2f;
+        a.NextStrikeBonus = 0;
+        float dmgMul = a.NextDamageMul; a.NextDamageMul = 1f;
+        float roll = Rng.Next();
+        float pc = MathX.Clamp(p, 0.08f, 0.95f);
+        if (roll >= pc)
+        {
+            bool blocked = pShield > 0 && roll < MathX.Clamp(p + pShield, 0.08f, 0.95f);
+            Emit("swing", a.Id, t.Id, t.Pos, blocked ? "block" : "miss");
+            if (blocked) Emit("block", t.Id, a.Id, t.Pos);
+            return;
+        }
+        Emit("swing", a.Id, t.Id, t.Pos, "hit");
+        Hit(a, t, dmgMul != 1f ? w with { Damage = w.Damage * dmgMul } : w, melee: true);
+        if (a.Ready(Ability.Rozbicie, Time) && t.Status != Status.Dead)
+        {
+            a.Use(Ability.Rozbicie, Time, 15); Emit("ability", a.Id, t.Id, t.Pos, "Rozbicie");
+            if (t.IsHuman) t.ArmorTorso = Math.Max(0, t.ArmorTorso - 1);
+            else { t.HitsTaken++; if (t.HitsTaken >= t.Creature!.Hp) Kill(t, a, "rozbicie"); }
+        }
+        if (w.Stuns && t.IsHuman && Rng.Chance(0.25f) && !t.Has(Ability.TwardySzyk)) t.StunUntil = Time + 1.2f;
         if (w.Stuns && !t.IsHuman && t.Kind != Kind.Rat) t.StunUntil = Time + 0.5f;
     }
 
@@ -282,8 +316,8 @@ public sealed class Battle
     {
         // mur tarcz: sąsiad z tarczą w odległości do 1,3 m daje dodatkowy blok
         int n = 0;
-        foreach (var o in All) if (o != t && o.Active && o.Team == t.Team && o.Current.Block > 0 && Vec2.Dist(o.Pos, t.Pos) < 1.3f) n++;
-        return n * 0.06f;
+        foreach (var o in All) if (o != t && o.Active && o.Team == t.Team && o.Current.Block > 0 && Vec2.Dist(o.Pos, t.Pos) < 1.3f) n += o.Has(Ability.TwardySzyk) ? 2 : 1;
+        return n * 0.06f + (t.Has(Ability.TwardySzyk) ? 0.06f : 0);
     }
 
     public void Shoot(Fighter a, Fighter t)
@@ -295,7 +329,10 @@ public sealed class Battle
         a.Facing = (t.Pos - a.Pos).Angle;
         MakeNoise(a.Pos, w.Noise, a.Team, "strzał");
         float p = HitChance(a, t, dist);
+        if (a.Ready(Ability.CelnyStrzal, Time) && (t.Kind is Kind.Krzykacz or Kind.Nosiciel or Kind.Ogar || t.Role is Role.Herszt or Role.Lucznik || dist > 15))
+        { a.Use(Ability.CelnyStrzal, Time, 20); p = MathF.Min(0.95f, p * 1.4f); w = w with { Penetration = w.Penetration + 1, Damage = w.Damage * 1.1f }; Emit("ability", a.Id, t.Id, a.Pos, "Celny strzał"); }
         bool hit = Rng.Chance(p);
+        Emit("shot", a.Id, t.Id, a.Pos, w.Id);
         float flight = dist / w.ProjSpeed;
         var aim = t.Pos + t.Vel * flight * MathX.Clamp01(0.4f + a.S.Accuracy * 0.07f);
         Vec2 to;
@@ -320,6 +357,7 @@ public sealed class Battle
         float lightF = 0.5f + 0.5f * MathX.Clamp01(LightAt(t.Pos) / 0.6f);
         float coverF = 1f - Map.CoverFrom(t.Pos, a.Pos) * 0.55f;
         float stress = 1f - a.Suppression / 200f - MathX.Clamp01((60f - a.Morale) / 100f) * 0.4f;
+        if (a.Has(Ability.OgienCelowany) && Time - a.StillSince > 2f) stress *= 1.15f;
         return MathX.Clamp(baseP * rangeF * sizeF * moveF * lightF * coverF * stress, 0.02f, 0.95f);
     }
 
@@ -379,7 +417,9 @@ public sealed class Battle
     public void Hit(Fighter a, Fighter t, WeaponDef w, bool melee)
     {
         if (t.Status == Status.Dead) return;
+        if (t.CarryingId >= 0 && t.Has(Ability.Wyciagniecie) && Rng.Chance(0.5f)) return;   // sanitariusz bojowy przy wyciąganiu
         a.DamageDealt += w.Damage;
+        Emit("hit", t.Id, a.Id, t.Pos, w.Id);
         if (!t.IsHuman)
         {
             int dmg = w.Damage >= 1.1f || (w.Penetration >= 4) ? 2 : (Rng.Chance(w.Damage * 0.6f) ? 2 : 1);
@@ -425,6 +465,7 @@ public sealed class Battle
     {
         if (t.Status != Status.Ok) return;
         t.Status = Status.Down; t.DownAt = Time; t.Order = new Order(); t.HasMoveTarget = false; t.TargetId = -1;
+        Emit("down", t.Id, by?.Id ?? -1, t.Pos);
         if (t.CarryingId >= 0 && TryGet(t.CarryingId, out var c)) { c.CarriedById = -1; t.CarryingId = -1; }
         if (by != null && by.Team != t.Team) by.Kills++;
         Log.Event(Time, LogKind.Down, by?.Id ?? -1, t.Id, $"{t.Name} pada ({(by != null ? by.Name : "?")})");
@@ -442,6 +483,7 @@ public sealed class Battle
         if (t.Status == Status.Dead) return;
         var was = t.Status;
         t.Status = Status.Dead; t.DiedAt = Time; t.HasMoveTarget = false;
+        Emit("death", t.Id, by?.Id ?? -1, t.Pos, was == Status.Down ? "down" : "");
         if (t.CarriedById >= 0 && TryGet(t.CarriedById, out var c)) { c.CarryingId = -1; t.CarriedById = -1; }
         if (by != null && by.Team != t.Team) { if (was != Status.Down) by.Kills++; if (by.IsHuman) by.Morale = MathF.Min(100, by.Morale + (t.Kind == Kind.Rat ? 1 : 5)); }
         Log.Event(Time, LogKind.Kill, by?.Id ?? -1, t.Id, $"{(by != null ? by.Name : "?")} zabija: {t.Name} ({how})");

@@ -1,0 +1,18 @@
+config_version=5
+
+[application]
+config/name="Latarnia — symulator bitew"
+run/main_scene="res://Main.tscn"
+config/features=PackedStringArray("4.7", "C#", "Forward Plus")
+
+[display]
+window/size/viewport_width=1600
+window/size/viewport_height=900
+window/stretch/aspect="expand"
+
+[dotnet]
+project/assembly_name="Symulator"
+
+[rendering]
+textures/canvas_textures/default_texture_filter=0
+anti_aliasing/quality/msaa_3d=0

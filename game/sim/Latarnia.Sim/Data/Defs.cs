@@ -26,6 +26,12 @@ public static class Weapons
     public static readonly WeaponDef RatBite  = new("rat_bite", "ugryzienie szczura", WeaponKind.Melee, 0, 0.6f, 0.9f, 0.25f, Noise: 2);
     public static readonly WeaponDef OgarBite = new("ogar_bite", "ugryzienie Ogara", WeaponKind.Melee, 2, 1.0f, 1.0f, 1.05f, Noise: 6);
     public static readonly WeaponDef Claw     = new("claw", "pazury", WeaponKind.Melee, 1, 1.0f, 1.3f, 0.6f, Noise: 4);
+
+    /// <summary>Broń ludzi do wyboru w edytorze (epoka Złomu).</summary>
+    public static readonly WeaponDef[] Human = { ShieldSpear, Spear, Hammer, Machete, Pipe, Knife, PipeBow, Crossbow };
+    static readonly Dictionary<string, WeaponDef> _by = new();
+    static Weapons() { foreach (var w in new[] { Knife, Pipe, Machete, Spear, ShieldSpear, Hammer, PipeBow, Crossbow, RatBite, OgarBite, Claw }) _by[w.Id] = w; }
+    public static WeaponDef? ById(string? id) => id != null && _by.TryGetValue(id, out var w) ? w : null;
 }
 
 public enum Kind { Human, Rat, Ogar, Krzykacz, Nosiciel }

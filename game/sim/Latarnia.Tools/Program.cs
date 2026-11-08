@@ -7,6 +7,7 @@ using Latarnia.Sim.Report;
 using Latarnia.Sim.Scenarios;
 using Latarnia.Sim.Units;
 using Latarnia.Sim.World;
+using Latarnia.Sim.Data;
 
 // Narzędzia prototypu walki:
 //   bench [N] [scenariusz|all]       – N walk na poziom dowódcy (1, 2, 3), tabela wyników
@@ -109,6 +110,22 @@ switch (cmd)
                 line.Append($" | {ps}: straty {reps.Average(r => r.Dead * 3 + r.Downed + (r.Won ? 0 : 3)):0.00} zab {reps.Average(r => r.Dead):0.00}");
             }
             Console.WriteLine(line);
+        }
+        break;
+    }
+    case "specbench":
+    {
+        int n = int.Parse(args[1]);
+        var cfgs = new List<(string, BattleSpec)>();
+        cfgs.Add(("Noc Mgły (domyślna)", Presets.Default()));
+        var a = Presets.Default(); a.Opponent = OpponentType.Sklad; a.Enemy = Presets.Szabrownicy(2); a.Mode = ClashMode.ObronaOsady; cfgs.Add(("Szabrownicy atakują", a));
+        var c2 = a.Clone(); c2.Mode = ClashMode.Starcie; cfgs.Add(("Starcie w polu", c2));
+        var d = a.Clone(); d.Mode = ClashMode.Starcie; d.Enemy = Presets.Mroz(); d.Enemy.Name = "Lustro"; d.Enemy.Commander.Level = 1; d.Enemy.Commander.Kadry = 1; d.Enemy.Commander.Teren = 1; d.Enemy.Commander.Formacje = 1; cfgs.Add(("Mróz poz.3 vs ten sam skład poz.1", d));
+        foreach (var (name, spec) in cfgs)
+        {
+            var reps = new System.Collections.Concurrent.ConcurrentBag<BattleReport>();
+            Parallel.For(0, n, i => { var sp = spec.Clone(); sp.Seed = (ulong)(2000 + i); var b = Scenarios.Build(sp); b.Run(); reps.Add(ReportBuilder.Build(b, b.Squads[0])); });
+            Console.WriteLine($"{name,-36} wygr {reps.Average(r => r.Won ? 100 : 0),5:0}%  zabici {reps.Average(r => r.Dead):0.00}  padli {reps.Average(r => r.Dead + r.Downed):0.00}  czas {reps.Average(r => r.Time):0}s");
         }
         break;
     }

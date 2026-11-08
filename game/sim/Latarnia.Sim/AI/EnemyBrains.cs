@@ -180,7 +180,7 @@ public static class EnemyBrains
         br.NextScream = b.Time + 12f;
         f.Say("AAAAA!", b.Time, 1.2f);
         b.MakeNoise(f.Pos, 40f, f.Team, "krzyk");
-        b.Log.Event(b.Time, LogKind.Scream, f.Id, -1, "Krzykacz krzyczy");
+        b.Log.Event(b.Time, LogKind.Scream, f.Id, -1, "Krzykacz krzyczy"); b.Emit("scream", f.Id, -1, f.Pos);
         f.RevealedUntil = b.Time + 3.5f;
         foreach (var h in b.All)
         {
@@ -212,7 +212,7 @@ public static class EnemyBrains
     {
         var br = f.Brain as BeastBrain; if (br != null && br.Exploded) return;
         if (br != null) br.Exploded = true;
-        b.MakeNoise(f.Pos, 40f, f.Team, "wybuch");
+        b.MakeNoise(f.Pos, 40f, f.Team, "wybuch"); b.Emit("explode", f.Id, -1, f.Pos);
         b.Log.Event(b.Time, LogKind.Explosion, f.Id, -1, $"Nosiciel wybucha ({b.LightAt(f.Pos):0.00} światła)");
         foreach (var h in b.All.ToList())
         {

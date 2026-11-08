@@ -182,4 +182,9 @@ Ten plik streszcza rozmowy, z których powstał projekt, w kolejności, w jakiej
   - Na 1000 walk poziom 3 traci 5 razy mniej zabitych niż poziom 1.
   - Otwarte: banda z dowódcą poziomu 3 jest słabsza niż bez niego, raport nie wykrywa słabego Terenu i Formacji.
   - Po drodze poprawione mapa i światło, obniżona śmiertelność; dodane masa, ciosy z boku, fosforyzujący Nosiciel i świecący Krzykacz (do potwierdzenia).
+- **Symulator bitew w 3D (8 listopada, wieczór):** na życzenie użytkownika „docelowa jakość”. Najpierw dorobione wszystkie brakujące animacje (wybór użytkownika), potem edytor i bitwa w Godocie. Opis w `docs/SYMULATOR.md`.
+  - Animacje: ranny, opatrywanie, wyciąganie, kulenie się, blok tarczą, łuk i kusza z cięciwą na kościach skalowanych, szczur Mgły z kośćmi.
+  - Edytor: skład z klasami (15 klas z KLASY.md, 14 zdolności w symulacji), sprzętem i statystykami; przeciwnik jako fale mutantów albo drugi skład.
+  - Bitwa 3D w pixel arcie i raport.
+  - Otwarte: atakujący z dowódcą słabsi niż powinni, brak broni bocznej na modelu, brak dźwięku.
 

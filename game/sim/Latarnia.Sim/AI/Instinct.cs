@@ -208,7 +208,7 @@ public static class Instinct
                 if (!w.Stabilized && (enemiesNear == 0 || w.Bleed > 1.5f))
                 {
                     st.TreatTarget = w.Id;
-                    float dur = (f.Role == Role.Sanitariusz ? 2.5f : 5f) * (f.Medkits > 0 ? 1f : 1.6f);
+                    float dur = TreatTime(f);
                     st.TreatUntil = b.Time + dur; f.Say(Phrases.Pick(Phrases.Medic, b.Rng), b.Time, 1.5f);
                     f.HasMoveTarget = false; f.Intent = "opatruje";
                 }
@@ -309,7 +309,34 @@ public static class Instinct
             if (d > 4 && DangerClose(b, f, t) && !st.RiskyShotOk && !(f.Tactical >= 3 && d < 8f && b.HitChance(f, t, d) > 0.45f)) return;   // pewny strzał z bliska wolno
             if (f.Cooldown <= 0) { b.Shoot(f, t); st.LastShotAt = b.Time; }
         }
-        else if (b.CanStrike(f, t)) { f.Facing = (t.Pos - f.Pos).Angle; b.Strike(f, t); }
+        else
+        {
+            // Wypad (Rębacz): skok do wroga 1,5–3,5 m i mocniejszy cios
+            if (f.Ready(Ability.Wypad, b.Time) && d > f.Current.Reach + 0.4f && d < 3.6f && f.Cooldown <= 0)
+            {
+                var dir = (t.Pos - f.Pos).Normalized(); var land = t.Pos - dir * (f.Current.Reach * 0.7f + t.Radius);
+                if (b.Map.Walkable(land) && LineOfSight.Clear(b.Map, f.Pos, land))
+                {
+                    f.Use(Ability.Wypad, b.Time, 10); b.Emit("lunge", f.Id, t.Id, f.Pos); b.Emit("ability", f.Id, t.Id, f.Pos, "Wypad");
+                    f.Pos = land; f.NextStrikeBonus = 0.15f; f.NextDamageMul = 1.3f;
+                }
+            }
+            // Ściana grotów (Dzidnik): cios wyprzedzający we wroga, który wchodzi w zasięg
+            if (f.Ready(Ability.ScianaGrotow, b.Time) && d < f.Current.Reach + 0.6f && Vec2.Dot(t.Vel, (f.Pos - t.Pos).Normalized()) > 1.5f)
+            { f.Use(Ability.ScianaGrotow, b.Time, 25); f.Cooldown = 0; f.NextStrikeBonus = 0.25f; b.Emit("ability", f.Id, t.Id, f.Pos, "Ściana grotów"); }
+            if (b.CanStrike(f, t))
+            {
+                f.Facing = (t.Pos - f.Pos).Angle;
+                // Seria cięć (Nożownik): trzy szybkie ciosy z krwawieniem
+                if (f.Ready(Ability.SeriaCiec, b.Time) && f.Cooldown <= 0)
+                {
+                    f.Use(Ability.SeriaCiec, b.Time, 12); b.Emit("ability", f.Id, t.Id, f.Pos, "Seria cięć");
+                    for (int k = 0; k < 3 && t.Status != Status.Dead; k++) { f.Cooldown = 0; b.Strike(f, t); if (t.IsHuman) t.Bleed += 0.08f; }
+                    f.Cooldown = f.Current.Interval * 1.5f;
+                }
+                else b.Strike(f, t);
+            }
+        }
         if (f.Vel.LengthSq < 0.5f) f.Facing = MathX.MoveTowardsAngle(f.Facing, (t.Pos - f.Pos).Angle, 0.4f);
     }
 
@@ -322,7 +349,7 @@ public static class Instinct
         {
             w.CarriedById = -1; f.CarryingId = -1; f.Rescues++;
             b.Log.Event(b.Time, LogKind.Rescue, f.Id, w.Id, $"{f.Name} wyniósł {w.Name} pod latarnię");
-            if (!w.Stabilized) { st.TreatTarget = w.Id; st.TreatUntil = b.Time + (f.Role == Role.Sanitariusz ? 2.5f : 5f); }
+            if (!w.Stabilized) { st.TreatTarget = w.Id; st.TreatUntil = b.Time + TreatTime(f); }
             else f.Order = new Order();
         }
     }
@@ -332,7 +359,7 @@ public static class Instinct
         if (b.TryGet(st.TreatTarget, out var w) && w.Status == Status.Down && Vec2.Dist(w.Pos, f.Pos) < 1.8f)
         {
             if (f.Medkits > 0) f.Medkits--;
-            w.Stabilized = true; w.Bleed *= 0.6f;
+            w.Stabilized = true; w.Bleed *= f.Has(Ability.LeczenieWPolu) ? 0.3f : 0.6f;
             f.Rescues++;
             b.Log.Event(b.Time, LogKind.Rescue, f.Id, w.Id, $"{f.Name} opatrzył {w.Name}");
         }
@@ -344,6 +371,10 @@ public static class Instinct
             else f.Order = new Order();
         }
     }
+
+    /// <summary>Opatrzenie: sanitariusz 4 s (Stabilizacja), felczer i bojowy 3,5 s, inni 8 s; bez apteczki dłużej.</summary>
+    static float TreatTime(Fighter f) =>
+        (f.Has(Ability.LeczenieWPolu) || f.Has(Ability.Wyciagniecie) ? 3.5f : f.Has(Ability.Stabilizacja) ? 4f : f.Role == Role.Sanitariusz ? 5f : 8f) * (f.Medkits > 0 ? 1f : 1.5f);
 
     // ---------------- pomocnicze ----------------
     static void Hold(Fighter f, Vec2 p) { f.MoveTarget = p; f.HasMoveTarget = true; }

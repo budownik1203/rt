@@ -64,6 +64,7 @@ public sealed class Commander
     public int ScreamsHeard;
     public bool Surprised;   // ktoś oberwał od wroga, o którym dowódca nie wiedział
     public int FlaresLeft = 2; float _nextFlare;
+    public float LastShoutAt = -99;
     readonly Queue<string> _shouts = new(); float _nextShout;
     int _taskSeq, _threatSeq;
     float _lastPlanAt = -99;
@@ -303,7 +304,7 @@ public sealed class Commander
         if (where == null) return;
         var target = where.Value;
         if (Vec2.Dist(target, Leader.Pos) > 25f) target = Leader.Pos + (target - Leader.Pos).Normalized() * 25f;
-        b.Flares.Add(new Flare(target, 10f, b.Time + 20f, Leader.Id));
+        b.Flares.Add(new Flare(target, 10f, b.Time + 20f, Leader.Id)); b.Emit("flare", Leader.Id, -1, target);
         FlaresLeft--; _nextFlare = b.Time + 12f;
         _shouts.Enqueue($"Flara na {why.Replace(" (za palisadą)", "")}!");
         b.Log.Event(b.Time, LogKind.Order, Leader.Id, -1, $"{Leader.Name}: flara ({why})");
@@ -639,7 +640,7 @@ public sealed class Commander
     {
         if (_shouts.Count == 0 || b.Time < _nextShout || !Leader.Active) return;
         var s = _shouts.Dequeue();
-        Leader.Say(s, b.Time, 2.0f);
+        Leader.Say(s, b.Time, 2.0f); LastShoutAt = b.Time; b.Emit("shout", Leader.Id, -1, Leader.Pos, s);
         _nextShout = b.Time + 1.6f;
     }
 

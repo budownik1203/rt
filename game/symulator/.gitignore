@@ -1,0 +1,6 @@
+.godot/
+bin/
+obj/
+out/
+*.import
+!models/**/*.import

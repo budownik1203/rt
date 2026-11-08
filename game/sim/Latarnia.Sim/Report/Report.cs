@@ -161,13 +161,23 @@ public static class ReportBuilder
         // 6. chwile
         foreach (var e in b.Log.Events.Where(e => e.Kind == LogKind.Chaos && e.Actor >= 0 && b.Get(e.Actor).Team == s.Team).Take(2)) r.Moments.Add($"{e.T:0} s: {e.Text}");
         var firstPlan = c.Decisions.FirstOrDefault(d => d.Replaced);
-        if (firstPlan != null) r.Moments.Insert(0, $"{firstPlan.T:0} s: pierwszy plan — {Short(firstPlan.Tasks)}");
+        if (firstPlan != null) r.Moments.Insert(0, $"{firstPlan.T:0} s: pierwszy plan — {PlanPl(b, firstPlan)}");
+        var firstReal = c.Decisions.FirstOrDefault(d => d.Replaced && d.ThreatList.Count > 0);
+        if (firstReal != null && firstReal != firstPlan) r.Moments.Insert(1, $"{firstReal.T:0} s: pierwszy kontakt — {PlanPl(b, firstReal)}");
         int replans = c.Decisions.Count(d => d.Replaced) - 1;
         if (replans > 0) r.Moments.Add($"Zmian planu: {replans} (w tym nagłych: {c.Decisions.Count(d => d.Replaced && d.Emergency)}).");
         return r;
     }
 
     static string Short(string s) => s.Length > 140 ? s[..140] + "…" : s;
+
+    static string PlanPl(Battle b, DecisionRecord d) => string.Join("; ", d.TaskList.Where(t => t.who.Length > 0).Select(t =>
+        $"{TaskPl(t.type, t.key)}: {string.Join(", ", t.who.Select(id => b.Get(id).Name))}"));
+    static string TaskPl(TaskType t, string key) => key == "krag" ? "krąg" : t switch
+    {
+        TaskType.Hold => "trzymać", TaskType.FireSupport => "ogień", TaskType.Eliminate => "zdjąć Krzykacza", TaskType.KillAtRange => "zdjąć Nosiciela",
+        TaskType.Rescue => "ratować", TaskType.Watch => "tyły", TaskType.Reserve => "odwód", TaskType.Assault => "szturm", TaskType.Avoid => "odsunąć się", _ => t.ToString()
+    };
 
     public static string RolePl(Role r) => r switch
     {

@@ -78,6 +78,99 @@ public static class Scenarios
 
     static void Later(Battle b, float t, Action a) => b.Schedule.Add((t, _ => a()));
 
+    // ================================================================== bitwa z edytora (BattleSpec)
+    /// <summary>Buduje bitwę z opisu z edytora: skład gracza, fale mutantów albo drugi skład (obrona osady lub starcie w polu).</summary>
+    public static Battle Build(BattleSpec spec, bool record = false)
+    {
+        var map = Maps.SmallSettlement();
+        var b = new Battle(map, spec.Seed) { MaxTime = spec.MaxTime };
+        b.Log.RecordFrames = record;
+        var c = map.LampPos;
+        bool clash = spec.Opponent == OpponentType.Sklad && spec.Mode == ClashMode.Starcie;
+        // skład A: przy latarni (obrona) albo na zachodzie (starcie)
+        var aPos = clash ? c + new Vec2(-13f, 1f) : c;
+        var bPos = clash ? c + new Vec2(13f, 1f) : c + new Vec2(0, 30f);
+        var A = SquadFrom(b, spec.Squad, Team.Squad, aPos, attacking: clash, anchor: clash ? bPos : c, ring: !clash, facing: clash ? 0f : (float?)null);
+        if (spec.Opponent == OpponentType.Mutanty)
+        {
+            foreach (var w in spec.Waves)
+            {
+                var wave = w;
+                Action spawn = () => Pack(b, wave.Kind, wave.Count, wave.AngleDeg * MathF.PI / 180f, wave.Distance);
+                if (wave.Delay <= 0.01f) spawn(); else Later(b, wave.Delay, spawn);
+            }
+        }
+        else if (spec.Enemy != null)
+        {
+            SquadFrom(b, spec.Enemy, Team.Enemy, bPos, attacking: true, anchor: clash ? aPos : c, ring: false, facing: clash ? MathF.PI : -MathF.PI / 2);
+        }
+        return b;
+    }
+
+    public static Squad SquadFrom(Battle b, SquadSpec ss, Team team, Vec2 center, bool attacking, Vec2 anchor, bool ring, float? facing)
+    {
+        var s = new Squad { Index = b.Squads.Count, Team = team, Name = ss.Name, Anchor = anchor, Attacking = attacking };
+        b.Squads.Add(s);
+        int n = ss.Fighters.Count;
+        for (int i = 0; i < n; i++)
+        {
+            var fs = ss.Fighters[i];
+            Vec2 pos = ring ? center + Vec2.FromAngle(i * MathF.Tau / Math.Max(1, n) + 0.3f) * 3f
+                            : center + new Vec2(((i % 4) - 1.5f) * 1.4f, (i / 4) * 1.4f) * (team == Team.Squad ? 1 : -1);
+            var f = FromSpec(fs, team, s.Index);
+            f.Pos = Terrain.Walkable(b.Map, pos);
+            f.Facing = facing ?? (ring ? (f.Pos - center).Angle : (anchor - f.Pos).Angle);
+            b.Add(f); s.Members.Add(f);
+        }
+        if (s.Members.Count > 0)
+        {
+            var cs = ss.Commander;
+            var leader = s.Members[Math.Clamp(cs.Leader, 0, s.Members.Count - 1)];
+            s.Commander = new Commander(leader, new CommanderProfile { Level = cs.Level, Kadry = cs.Kadry, Teren = cs.Teren, Formacje = cs.Formacje, Character = cs.Character }) { FlaresLeft = cs.Flares };
+            s.Commander.Deputies.AddRange(s.Members.Where(m => m != leader).OrderByDescending(m => m.Tactical).ThenByDescending(m => m.S.Nerve));
+        }
+        return s;
+    }
+
+    public static Fighter FromSpec(FighterSpec fs, Team team, int squad)
+    {
+        var main = Weapons.ById(fs.Weapon) ?? Weapons.Machete;
+        var side = Weapons.ById(fs.Side);
+        var f = new Fighter
+        {
+            Name = fs.Name, Team = team, Kind = Kind.Human, SquadIndex = squad, Main = main, Side = side, Current = main, Ammo = main.Ammo,
+            Tactical = Math.Clamp(fs.Tactical, 1, 5), ArmorHead = fs.ArmorHead, ArmorTorso = fs.ArmorTorso, Medkits = fs.Medkits,
+            Brave = fs.Brave, Coward = fs.Coward, Merciful = fs.Merciful, Morale = fs.Morale, ClassId = fs.ClassId
+        };
+        f.S.Accuracy = fs.Accuracy; f.S.Melee = fs.Melee; f.S.Strength = fs.Strength; f.S.Agility = fs.Agility; f.S.Perception = fs.Perception; f.S.Nerve = fs.Nerve; f.S.Endurance = fs.Endurance;
+        var cls = Classes.Get(fs.ClassId);
+        foreach (var c in Classes.Chain(fs.ClassId))
+        {
+            if (c.Ability != Ability.None) f.Abilities.Add(c.Ability);
+            f.S.Accuracy += c.Acc; f.S.Melee += c.Melee; f.S.Strength += c.Str; f.S.Agility += c.Agi; f.S.Perception += c.Per; f.S.Nerve += c.Nerve; f.S.Endurance += c.End;
+        }
+        f.Role = fs.RoleOverride ?? (cls.Role != Role.None ? cls.Role : main.IsRanged ? Role.Strzelec : Role.Rebacz);
+        f.Model = fs.Model ?? ModelFor(f, team);
+        return f;
+    }
+
+    /// <summary>Model 3D według broni, klasy i strony (skład gracza / przeciwnik).</summary>
+    public static string ModelFor(Fighter f, Team team)
+    {
+        bool enemy = team == Team.Enemy;
+        return f.Main.Id switch
+        {
+            "shield_spear" => enemy ? "sz_obdartus" : "tarczownik",
+            "spear" => enemy ? "sz_obdartus" : "tarczownik",
+            "hammer" => "rebacz",
+            "pipe_bow" => enemy ? "sz_lucznik" : f.Role == Role.Zwiadowca ? "zwiadowca" : "strzelec_luk",
+            "crossbow" => "strzelec_kusza",
+            "pipe" => enemy ? "sz_rozbijacz" : f.Role == Role.Sanitariusz ? "sanitariusz" : "sz_rozbijacz",
+            "knife" => enemy ? "sz_nozownik" : "nozownik_sklad",
+            _ => enemy ? "sz_psiarz" : "maczeta_sklad",
+        };
+    }
+
     // ---------------- skład gracza ----------------
     public static Squad AddSquad(Battle b, CommanderProfile profile)
     {
@@ -124,7 +217,8 @@ public static class Scenarios
             float a = angle + b.Rng.Range(-0.18f, 0.18f) + (i - n / 2f) * (kind == Kind.Rat ? 0.02f : 0.07f);
             var p = c + Vec2.FromAngle(a) * (dist + b.Rng.Range(-1.5f, 1.5f));
             p = new Vec2(MathX.Clamp(p.X, 1, b.Map.WidthM - 1), MathX.Clamp(p.Y, 1, b.Map.HeightM - 1));
-            var f = new Fighter { Name = def.NamePl, Team = Team.Enemy, Kind = kind, Creature = def, SquadIndex = squad, Main = def.Attack, Current = def.Attack, Pos = Terrain.Walkable(b.Map, p), Morale = 100 };
+            var f = new Fighter { Name = def.NamePl, Team = Team.Enemy, Kind = kind, Creature = def, SquadIndex = squad, Main = def.Attack, Current = def.Attack, Pos = Terrain.Walkable(b.Map, p), Morale = 100,
+                Model = kind switch { Kind.Rat => "szczur", Kind.Ogar => "ogar", Kind.Krzykacz => "krzykacz", _ => "nosiciel" } };
             f.Facing = (c - f.Pos).Angle;
             b.Add(f); s.Members.Add(f);
         }

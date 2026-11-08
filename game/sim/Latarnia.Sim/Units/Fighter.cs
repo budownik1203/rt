@@ -44,6 +44,15 @@ public sealed class Fighter
     public int SquadIndex;
     public Stats S = new();
     public int Tactical = 2;        // wyszkolenie taktyczne 1..5
+    public string ClassId = "rekrut";
+    public readonly HashSet<Ability> Abilities = new();
+    public readonly Dictionary<Ability, float> ReadyAt = new();
+    public float StillSince;        // od kiedy stoi (Ogień celowany)
+    public float NextStrikeBonus, NextDamageMul = 1f;
+    public string Model = "";       // model 3D do widoku
+    public bool Has(Ability a) => Abilities.Contains(a);
+    public bool Ready(Ability a, float now) => Abilities.Contains(a) && (!ReadyAt.TryGetValue(a, out var t) || now >= t);
+    public void Use(Ability a, float now, float cd) => ReadyAt[a] = now + cd;
     public bool Brave, Coward, Merciful;
 
     // stan fizyczny
@@ -100,7 +109,7 @@ public sealed class Fighter
         float s = (run ? 3.4f : 1.6f) * (0.85f + S.Agility * 0.03f);
         if (LegsDisabled) s *= 0.3f;
         if (Crouch) s *= 0.55f;
-        if (CarryingId >= 0) s *= 0.55f;
+        if (CarryingId >= 0) s *= Has(Ability.Wyciagniecie) ? 0.9f : 0.55f;
         s *= 1f - MathX.Clamp01(Fatigue / 100f) * 0.35f;
         return s;
     }

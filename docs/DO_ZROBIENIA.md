@@ -23,6 +23,12 @@ Decyzje z 8 listopada są w `DECYZJE_2026-11-08.md` i w większości wpisane do 
    - poziomy 4–5 i charaktery;
    - podgląd w Godocie.
    - Do decyzji użytkownika: świecący Nosiciel i Krzykacz, niższa śmiertelność, flary 2 na walkę.
+7a. **Symulator bitew 3D** zrobiony 8.11 wieczorem (`docs/SYMULATOR.md`, `game/symulator`). Dalej:
+   - ocena animacji na żywo przez użytkownika i pomiar klatek na GTX 1660 Super;
+   - nóż u pasa strzelców do zwarcia;
+   - dźwięk;
+   - model latarni z Blendera;
+   - lepszy dowodzony szturm (skład kontra skład).
 8. **Pozostałe pytania ★** z `PYTANIA.md`, których nie objęły decyzje z 8 listopada.
 
 
