@@ -165,4 +165,10 @@ Ten plik streszcza rozmowy, z których powstał projekt, w kolejności, w jakiej
   - muzyka adaptacyjna, bez głosów;
   - przemoc wobec dzieci pokazywana wprost;
   - wydanie na Steam po polsku i angielsku.
+- **Test shadera w Godocie (8 listopada):** styl Blendera (pasma światła, fioletowe cienie, kontur z głębi, Mgła z ditheringiem, paleta) działa na żywo w Godocie 4.7. Problemy:
+  - paleta przeskakuje między rampami;
+  - około 860 wywołań rysowania na małą scenę, więc scalanie siatek jest konieczne;
+  - płynny obrót kamery migocze, a przyciąganie do tekseli tego nie zmienia.
+
+  Raport w `docs/TEST_SHADERA.md`.
 

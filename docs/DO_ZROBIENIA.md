@@ -12,7 +12,11 @@ Decyzje z 8 listopada są w `DECYZJE_2026-11-08.md` i w większości wpisane do 
 3. **Około 27 wzmianek starych ustrojów** w koncepcie (Junta, Kościół Mgły, Reżim itd. w wydarzeniach, mutacjach, standaryzacji) do przepisania na bieguny. Uwaga: Synowie Czystości jako „skrajna Junta” to opis frakcji i może zostać.
 4. **Przegląd 64 nazw ustrojów** przez użytkownika.
 5. **Repozytorium git** (`latarnia`, prywatne): czeka, aż użytkownik je założy.
-6. **Test shadera w Godocie** na 3 modelach oraz scalanie siatek postaci przy eksporcie.
+6. ~~Test shadera w Godocie~~: zrobiony 8.11 (`docs/TEST_SHADERA.md`). Następne kroki:
+   - paleta z rampami materiałów;
+   - obwódki pod jednostkami;
+   - scalanie siatek (około 860 wywołań rysowania na 3 postacie i 5 budynków to za dużo);
+   - pomiar klatek na sekundę u użytkownika.
 7. **Prototyp walki** (`PLAN_BUDOWY_GRY.md`, etap 1). Mapa to fragment osady.
 8. **Pozostałe pytania ★** z `PYTANIA.md`, których nie objęły decyzje z 8 listopada.
 
