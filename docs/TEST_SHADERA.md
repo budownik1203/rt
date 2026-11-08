@@ -62,3 +62,41 @@ Projekt testu: `game/shader_test/` (Godot 4.7.2, Forward+, GDScript tylko w teś
 ## Do decyzji
 
 - **Obrót kamery:** zostaje w pełni płynny (z migotaniem w trakcie obrotu), czy hybryda: płynny podczas obracania, a po puszczeniu przycisku dociąga do najbliższego z 8 kątów, w których pixel art jest stabilny.
+
+
+## Druga runda (8 listopada, po południu)
+
+Zrobione z listy „Następne kroki”:
+
+1. **Scalanie siatek** (`game/shader_test/merge.gd`):
+   - postać: sztywne części z BoneAttachment3D → jedna siatka ze szkieletem (każdy wierzchołek 100% do swojej kości), kolor materiału w kolorze wierzchołka, jeden materiał;
+   - budynek: jedna statyczna siatka;
+   - części sterowane zdarzeniami (błysk, magazynek, granat) zostają osobno.
+
+   Animacje działają na scalonej siatce bez zmian.
+
+   | Scena | Bez scalania | Ze scalaniem |
+   | --- | --- | --- |
+   | 3 postacie i 5 budynków | 860 wywołań | 49 wywołań (17 razy mniej) |
+   | 63 postacie i 5 budynków | 9396 wywołań | 303 wywołania (31 razy mniej) |
+
+   Trójkątów jest więcej (około 860 tysięcy przy 63 postaciach), bo duże siatki rysują się do każdej ściany cienia lampy. To nadal mało dla GTX 1660 Super. Gdyby było za dużo, postacie mogą rzucać cień tylko od księżyca albo mieć prosty cień-plamę.
+2. **Paleta w OKLab** (porównanie kolorów zgodne z okiem, mocniejsza waga barwy). Pasma światła zostają w jednej rampie: ziemia jest zielona we wszystkich pasmach, bez przeskoków w brąz i szarość.
+3. **Kontur:**
+   - jaśniejszy po stronie światła (jak selective outline w Blenderze);
+   - ciemniejsza linia na załamaniach brył z bufora normalnych.
+4. **Obwódki pod jednostkami w barwie składu:** żółte dla swoich, czerwone dla wrogów. Czytelne także przy dużym oddaleniu i w Mgle.
+5. **Faktura ziemi** w dwóch skalach szumu i rozmycie pasm światła szumem, więc nie ma już równych pierścieni.
+6. **Tryb podglądu** (uruchom bez argumentów):
+   - licznik FPS i wywołań rysowania;
+   - Q i E obracają kamerę, kółko myszy przybliża;
+   - klawisze 1–3 przełączają efekty, 4 przyciąganie do tekseli;
+   - **5 przełącza hybrydę obrotu:** po puszczeniu Q/E kamera dociąga do najbliższego kąta co 45°.
+
+**Zostaje:**
+
+- Scalanie robione jest przy wczytaniu każdej postaci. W grze scalona siatka powinna powstawać raz na typ modelu (w imporcie albo w pamięci podręcznej) i być współdzielona.
+- Pomiar FPS na karcie użytkownika.
+- Ogar jest wciąż słabo czytelny bez obwódki. Pomogłoby mocniejsze światło wypełniające na zwierzętach albo jaśniejszy kolor sierści.
+- Jasne dachy i ściany budynków to kolory materiałów w modelach. Do poprawy razem z nowymi budynkami post-apo.
+- Decyzja o obrocie kamery: hybryda albo płynny. Oba warianty są w podglądzie do sprawdzenia.

@@ -17,11 +17,14 @@ var frame := 0
 var shots: Array = []
 var anim_players: Array = []
 var hud: Label
+var do_merge := true
+var settle := false   # hybryda: po puszczeniu Q/E kamera dociąga do najbliższego kąta co 45°
 
 func _ready() -> void:
 	var args := OS.get_cmdline_user_args()
 	if args.size() > 0: mode = args[0]
 	if args.size() > 1: snap = args[1] != "nosnap"
+	if "nomerge" in args: do_merge = false
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUT))
 	get_window().size = Vector2i(1920, 1080)
 	var cont := SubViewportContainer.new()
@@ -71,6 +74,10 @@ func build_world() -> void:
 	place("res://models/zolnierz_karabin.glb", Vector3(0.0, 0, 1.2), 200.0, true, "shoot")
 	place("res://models/zolnierz_karabin.glb", Vector3(-1.6, 0, 0.4), 160.0, true, "walk")
 	place("res://models/ogar.glb", Vector3(2.6, 0, 3.4), 220.0, true, "gallop")
+	if mode == "stress":   # obciążenie: 30 żołnierzy i 30 Ogarów
+		for i in 30:
+			place("res://models/zolnierz_karabin.glb", Vector3(-6.0 + (i % 6) * 1.2, 0, 5.0 + (i / 6) * 1.2), 180.0, true, "walk")
+			place("res://models/ogar.glb", Vector3(2.0 + (i % 6) * 1.3, 0, 7.0 + (i / 6) * 1.3), 200.0, true, "gallop")
 	# światło latarni (ciepłe, z cieniem), księżyc (chłodny, słaby), wypełnienie i kontur tylko na postaciach (warstwa 2)
 	var lamp := OmniLight3D.new()
 	lamp.position = Vector3(0.5, 4.2, -1.5)
@@ -104,7 +111,15 @@ func place(path: String, pos: Vector3, rot_y: float, is_char: bool, anim := "") 
 	inst.position = pos
 	inst.rotation_degrees.y = rot_y
 	vp.add_child(inst)
-	convert_materials(inst, is_char)
+	if do_merge:
+		var vm := toon(Color.WHITE); vm.set_shader_parameter("use_vcol", true)
+		var n := Merge.merge_character(inst, vm) if is_char else Merge.merge_static(inst, vm)
+		print(path, " scalono części: ", n)
+		if is_char: set_layers(inst)
+		hide_event_parts(inst)
+	else:
+		convert_materials(inst, is_char)
+	if is_char: add_ring(inst, Color(0.95, 0.75, 0.25) if not path.contains("ogar") else Color(0.85, 0.2, 0.15))
 	if path.contains("lampa"): no_shadow(inst)   # lampa nie zasłania własnego światła (jak visible_shadow=False w Blenderze)
 	if anim != "":
 		var ap := find_anim(inst)
@@ -116,6 +131,25 @@ func place(path: String, pos: Vector3, rot_y: float, is_char: bool, anim := "") 
 				ap.play(pick)
 				anim_players.append(ap)
 			print(path, " animacje: ", names, " -> ", pick)
+
+func set_layers(n: Node) -> void:
+	if n is VisualInstance3D: (n as VisualInstance3D).layers = 1 | 2
+	for c in n.get_children(): set_layers(c)
+
+func hide_event_parts(n: Node) -> void:
+	if Merge.is_event_part(n) and n is Node3D: (n as Node3D).visible = false
+	for c in n.get_children(): hide_event_parts(c)
+
+func add_ring(inst: Node3D, col: Color) -> void:   # obwódka pod jednostką w barwie składu (czytelność bez przybliżania)
+	var r := MeshInstance3D.new()
+	var tm := TorusMesh.new(); tm.inner_radius = 0.34; tm.outer_radius = 0.44; tm.rings = 24; tm.ring_segments = 4
+	r.mesh = tm
+	r.scale = Vector3(1.0, 0.04, 1.0)
+	r.position = Vector3(0, 0.03, 0)
+	r.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	var m := StandardMaterial3D.new(); m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED; m.albedo_color = col
+	r.material_override = m
+	inst.add_child(r)
 
 func no_shadow(n: Node) -> void:
 	if n is GeometryInstance3D: (n as GeometryInstance3D).cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
@@ -197,13 +231,18 @@ func _unhandled_input(ev: InputEvent) -> void:
 			KEY_2: post_mat.set_shader_parameter("use_outline", not post_mat.get_shader_parameter("use_outline"))
 			KEY_3: post_mat.set_shader_parameter("use_fog", not post_mat.get_shader_parameter("use_fog"))
 			KEY_4: snap = not snap
+			KEY_5: settle = not settle
 
 func _process(dt: float) -> void:
 	frame += 1
 	if mode == "view":
+		var turning := Input.is_key_pressed(KEY_Q) or Input.is_key_pressed(KEY_E)
 		if Input.is_key_pressed(KEY_Q): yaw -= 60.0 * dt; update_camera()
 		if Input.is_key_pressed(KEY_E): yaw += 60.0 * dt; update_camera()
-		hud.text = "FPS: %d   wywołania rysowania: %d   ortho: %.0f m   [Q/E obrót, kółko: zoom, 1 paleta, 2 kontur, 3 Mgła, 4 snap=%s]" % [Engine.get_frames_per_second(), Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME), ortho, str(snap)]
+		if settle and not turning:
+			var goal: float = round((yaw - 15.0) / 45.0) * 45.0 + 15.0
+			if abs(goal - yaw) > 0.01: yaw = move_toward(yaw, goal, 90.0 * dt); update_camera()
+		hud.text = "FPS: %d   wywołania rysowania: %d   ortho: %.0f m   [Q/E obrót, kółko: zoom, 1 paleta, 2 kontur, 3 Mgła, 4 snap=%s, 5 dociąganie kąta=%s]" % [Engine.get_frames_per_second(), Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME), ortho, str(snap), str(settle)]
 		return
 	if mode == "still":
 		if frame < 20: return
@@ -220,6 +259,15 @@ func _process(dt: float) -> void:
 		await RenderingServer.frame_post_draw
 		get_viewport().get_texture().get_image().save_png(OUT + "%s.png" % s[0])
 		print("zapisano ", s[0], " | wywołania rysowania: ", Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME), " | obiekty: ", Performance.get_monitor(Performance.RENDER_TOTAL_OBJECTS_IN_FRAME), " | trójkąty: ", Performance.get_monitor(Performance.RENDER_TOTAL_PRIMITIVES_IN_FRAME))
+	elif mode == "stress":
+		if frame == 30:
+			await RenderingServer.frame_post_draw
+			print("OBCIĄŻENIE scalanie=", do_merge, " wywołania rysowania: ", Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME), " trójkąty: ", Performance.get_monitor(Performance.RENDER_TOTAL_PRIMITIVES_IN_FRAME))
+			cam.size = 26.0; target = Vector3(0, 0.9, 4); update_camera()
+		if frame == 36:
+			await RenderingServer.frame_post_draw
+			get_viewport().get_texture().get_image().save_png(OUT + "obciazenie.png")
+			get_tree().quit()
 	elif mode == "rotate":
 		if frame < 15: return
 		var k := frame - 15

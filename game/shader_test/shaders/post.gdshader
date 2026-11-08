@@ -3,6 +3,8 @@ shader_type spatial;
 render_mode unshaded, depth_test_disabled, depth_draw_never, cull_disabled, fog_disabled;
 uniform sampler2D screen_tex : hint_screen_texture, filter_nearest;
 uniform sampler2D depth_tex : hint_depth_texture, filter_nearest;
+uniform sampler2D normal_tex : hint_normal_roughness_texture, filter_nearest;
+uniform float crease_thr = 0.55;
 uniform bool use_palette = true;
 uniform bool use_outline = true;
 uniform bool use_fog = true;
@@ -64,6 +66,15 @@ vec3(0.780,0.377,0.351));
 
 vec3 to_srgb(vec3 c){ return mix(c*12.92, 1.055*pow(c, vec3(1.0/2.4)) - 0.055, step(vec3(0.0031308), c)); }
 vec3 to_lin(vec3 c){ return mix(c/12.92, pow((c+0.055)/1.055, vec3(2.4)), step(vec3(0.04045), c)); }
+vec3 oklab(vec3 c){   // c w sRGB 0..1 -> OKLab (porównanie kolorów zgodne z okiem)
+	vec3 l = to_lin(c);
+	float L = 0.4122214708*l.r + 0.5363325363*l.g + 0.0514459929*l.b;
+	float M = 0.2119034982*l.r + 0.6806995451*l.g + 0.1073969566*l.b;
+	float S = 0.0883024619*l.r + 0.2817188376*l.g + 0.6299787005*l.b;
+	L = pow(L, 1.0/3.0); M = pow(M, 1.0/3.0); S = pow(S, 1.0/3.0);
+	return vec3(0.2104542553*L + 0.7936177850*M - 0.0040720468*S, 1.9779984951*L - 2.4285922050*M + 0.4505937099*S, 0.0259040371*L + 0.7827717662*M - 0.8086757660*S);
+}
+vec3 nrm(vec2 uv){ return texture(normal_tex, uv).xyz * 2.0 - 1.0; }
 void vertex() { POSITION = vec4(VERTEX.xy, 1.0, 1.0); }
 vec3 view_pos(vec2 uv, mat4 inv_proj) {
 	float d = texture(depth_tex, uv).r;
@@ -86,19 +97,27 @@ void fragment() {
 		float fq = floor(f * 4.0 + bayer4(FRAGCOORD.xy)) / 4.0;
 		col = mix(col, fog_col, clamp(fq, 0.0, 0.85));
 	}
-	if (use_outline) {   // kontur po stronie bliższego obiektu
-		float m = 0.0;
+	if (use_outline) {   // kontur po stronie bliższego obiektu; jaśniejszy po stronie światła; załamania brył z normalnych
+		float m = 0.0; float cr = 0.0;
+		vec3 n0 = nrm(SCREEN_UV);
 		vec2 o[4] = vec2[](vec2(px.x,0.0), vec2(-px.x,0.0), vec2(0.0,px.y), vec2(0.0,-px.y));
 		for (int i = 0; i < 4; i++) {
 			float dn = -view_pos(SCREEN_UV + o[i], INV_PROJECTION_MATRIX).z;
 			m = max(m, dn - dc);
+			if (abs(dn - dc) < 0.3 && i < 2) cr = max(cr, 1.0 - dot(n0, nrm(SCREEN_UV + o[i])));
 		}
-		if (m > edge_thr) col = col * vec3(0.30, 0.28, 0.42);
+		float lum = dot(col, vec3(0.3, 0.59, 0.11));
+		if (m > edge_thr) {
+			col = lum > 0.22 ? col * vec3(1.25, 1.15, 0.95) + vec3(0.03) : col * vec3(0.30, 0.28, 0.42);
+		} else if (cr > crease_thr) {
+			col = col * vec3(0.62, 0.60, 0.72);
+		}
 	}
 	if (use_palette) {   // paleta jest w sRGB (z renderów Blendera), obraz w Godocie jest liniowy
 		vec3 s = to_srgb(clamp(col, 0.0, 1.0));
+		vec3 q = oklab(s);
 		float best = 1e9; vec3 bc = s;
-		for (int i = 0; i < PAL_N; i++) { vec3 d = PAL[i] - s; d *= vec3(0.30, 0.59, 0.11) * 3.0; float dd = dot(d, d); if (dd < best) { best = dd; bc = PAL[i]; } }
+		for (int i = 0; i < PAL_N; i++) { vec3 d = oklab(PAL[i]) - q; d.yz *= 1.6; float dd = dot(d, d); if (dd < best) { best = dd; bc = PAL[i]; } }
 		col = to_lin(bc);
 	}
 	ALBEDO = col;

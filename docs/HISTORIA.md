@@ -171,4 +171,10 @@ Ten plik streszcza rozmowy, z których powstał projekt, w kolejności, w jakiej
   - płynny obrót kamery migocze, a przyciąganie do tekseli tego nie zmienia.
 
   Raport w `docs/TEST_SHADERA.md`.
+- **Test shadera, druga runda:**
+  - scalanie siatek: 63 postacie to 303 wywołania rysowania zamiast 9396;
+  - paleta w OKLab bez przeskoków barw;
+  - jaśniejszy kontur po stronie światła i załamania z normalnych;
+  - obwódki pod jednostkami, faktura ziemi;
+  - tryb podglądu z FPS i hybrydą obrotu kamery.
 
