@@ -36,7 +36,7 @@ Cel: sprawdzić, czy oglądanie walki składu z dowódcą wciąga.
    - postacie ze statystykami, ranami, morale, przyduszeniem, zmęczeniem;
    - balistyka z rozrzutem, pełny ogień bratobójczy, osłony.
 2. **Broń epoki Złomu i Kuźni** (6–8 rodzajów) według tabeli broni w koncepcie, plus sloty i broń boczna.
-3. **Cztery mutanty z pełnym zachowaniem:** Szczurza Fala, Ogar, Krzykacz, Nosiciel.
+3. **Wrogowie:** Szczurza Fala, Ogar, Krzykacz, Nosiciel i Szabrownicy (ludzie z tym samym AI dowódcy, decyzja z ankiety 8.11). Mapa to cała mała osada z kręgiem światła. Od razu modele .glb po teście shadera, a obrót kamery jest płynny.
 4. **AI dowódcy** w pięciu krokach z konceptu: zagrożenia, zadania, przydział, rozkaz tylko gdy ma sens (histereza), rozkazy nazwane.
    - Poziom 1–3 i trzy specjalizacje.
    - Formacje: klin, rząd, mur tarcz, jeż. Drile: kontakt, flanka.

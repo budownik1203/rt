@@ -35,7 +35,7 @@ Przejmujesz projekt gry **Latarnia** od poprzedniej instancji Claude, która pra
 
 ## Gra w trzech zdaniach
 
-Latarnia to gra o zarządzaniu osadą post-apo w fikcyjnej Europie Środkowej, gdzie świat zalewa Mgła z mutantami, a jedyną ochroną jest światło przedwojennej latarni. Gracz buduje osadę w kręgu światła, uchwala prawa, które przesuwają ustrój (komuna, rada, junta, reżim Latarnika, Kościół Mgły, Wolne Miasto), i rozwija ludzi przez szkoły i klasy. W walce gracz nie steruje jednostkami, tylko ogląda autobitwy składów prowadzonych przez dowódców z AI zależną od ich wyszkolenia, a potem czyta raport.
+Latarnia to gra o zarządzaniu osadą post-apo w fikcyjnej Europie Środkowej, gdzie świat zalewa Mgła z mutantami, a jedyną ochroną jest światło przedwojennej latarni. Gracz buduje osadę w kręgu światła, uchwala prawa, które przesuwają osadę na 6 osiach (64 ustroje, `docs/USTROJE.md`), i rozwija ludzi przez szkoły i klasy. W walce gracz nie steruje jednostkami, tylko ogląda autobitwy składów prowadzonych przez dowódców z AI zależną od ich wyszkolenia, a potem czyta raport.
 
 ## Przyjęte decyzje techniczne
 
@@ -46,7 +46,11 @@ Latarnia to gra o zarządzaniu osadą post-apo w fikcyjnej Europie Środkowej, g
 - **Animacje:** 12 klatek na sekundę.
 - **Pierwszy grywalny wycinek:** sama walka. Skład z dowódcą kontra mutanty na jednej mapie, z dymkami rozkazów i raportem po walce.
 
-## Stan projektu (6 listopada 2026)
+## Stan projektu (8 listopada 2026)
+
+Koncept jest domknięty po ankiecie 146 pytań (`docs/ODPOWIEDZI_2026-11-08.md`, sekcja „Decyzje z ankiety” w koncepcie, `docs/DECYZJE_2026-11-08.md`). Następny krok to test shadera w Godocie i prototyp walki. Środowisko instaluje `narzedzia/setup_srodowiska.sh`.
+
+### Wcześniej (6 listopada)
 
 Zrobione:
 
@@ -88,7 +92,9 @@ docs/KLASY.md                     52 klasy 11 szkół: opisy, sprzęt, zdolnośc
 docs/UZUPELNIENIA.md              zima i dni 11–36, ukryte cechy, klasy w liczbach, tempo badań, 40 nowych wydarzeń, postacie
 docs/PYTANIA.md                   162 pytania do ustalenia z propozycjami (zacząć od ★)
 docs/ANALIZA.md                   analiza projektu: ryzyka, duble, propozycje zmian
-docs/DECYZJE_2026-11-08.md      decyzje z 8.11 (co wpisane, co czeka)
+docs/DECYZJE_2026-11-08.md        decyzje z 8.11 (co wpisane, co czeka)
+docs/ODPOWIEDZI_2026-11-08.md     odpowiedzi użytkownika na ankietę 146 pytań
+ankieta/latarnia_decyzje.html     ankieta (strona HTML), pytania w ankieta/pytania.js
 docs/USTROJE.md                   6 osi, efekty biegunów, 64 nazwy ustrojów
 docs/OS_OPIEKA_SELEKCJA.md        szósta oś w szczegółach
 docs/OS_SZOSTA.md                 20 kandydatek na szóstą oś (zapas mechanik na prawa)
@@ -118,9 +124,9 @@ Rozpakuj archiwa do `assets/` przed pracą. Kod gry Godot zakładaj w `game/` (p
 3. Pracuj w tym folderze. Dokument koncepcyjny traktuj jako żywy: zmiany ustalone z użytkownikiem wpisuj od razu do `docs/KONCEPT_Latarnia.md`, a decyzje dopisuj do `docs/HISTORIA.md`.
 
 
-## Zasada pracy: zip po każdej zmianie
+## Zasada pracy: git i folder na pulpicie
 
-Użytkownik pracuje na kończącym się limicie. Po każdej większej zmianie zrób zip całego folderu (`Latarnia_paczka.zip`) i wyślij go do pobrania, żeby mógł podmienić folder na komputerze i kontynuować w nowym czacie.
+Od 8 listopada projekt jest w repozytorium GitHub `budownik1203/rt` (gałąź `main`). Po każdej większej zmianie zrób commit i push, a jeśli komputer użytkownika jest podłączony, skopiuj zmienione pliki do `Pulpit\Gra`. Zip nie jest już potrzebny.
 
 ## Uwaga o dokumencie online
 

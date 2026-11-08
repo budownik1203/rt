@@ -1,5 +1,13 @@
 # Przed startem prac nad grą: pełna lista (8 listopada 2026)
 
+> **Stan po ankiecie (8.11, 13:00):** części A, B, C i D są rozstrzygnięte w ankiecie (`ODPOWIEDZI_2026-11-08.md`, streszczenie w koncepcie i w `DECYZJE_2026-11-08.md`). Zostały:
+> - 3 sprawy z ankiety: Tresura kontra brak zwierząt w walce, trzy mechanizmy Sejmu, nazwa monety;
+> - nowe systemy do zaprojektowania (religia, gangi, muzyka adaptacyjna, drogi);
+> - przegląd szkół;
+> - przypisanie praw do osi.
+>
+> Żadna z nich nie blokuje prototypu walki.
+
 Zebrane ze wszystkich dokumentów: `PYTANIA.md` (162 pytania), `DO_ZROBIENIA.md`, `ANALIZA_KRYTYCZNA.md`, `DECYZJE_2026-11-08.md`, oznaczenia „do potwierdzenia” i sprzeczności, które jeszcze zostały.
 
 **Najważniejsze:** pierwszy etap gry to prototyp walki (`PLAN_BUDOWY_GRY.md`, etap 1). Do jego startu potrzeba tylko części A. Części B–E dotyczą osady, polityki i świata, czyli etapów 2–5. Można je ustalać równolegle z kodowaniem walki i nie blokują startu.

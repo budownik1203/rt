@@ -156,4 +156,13 @@ Ten plik streszcza rozmowy, z których powstał projekt, w kolejności, w jakiej
   - jeden zestaw liczb: Smolarnia 3:2 (do 6 na osobę), drwal 12 (zimą 8), latarnia w dzień 25%, szałas zimą 3, Barak zimą 2;
   - wyniki: dobry gracz traci około 1 osoby, średni około 3, zły upada; Opieka ratuje ludzi kosztem zapasów, Selekcja daje około 27% więcej zapasów kosztem zgonów;
   - projekt trafił do repozytorium `budownik1203/rt` na GitHubie.
+- **Ankieta 146 pytań (8 listopada, południe):** użytkownik odpowiedział na wszystkie otwarte sprawy koncepcyjne. Najważniejsze odstępstwa od propozycji:
+  - płynna kamera, od razu modele, obrona 3–6 minut, walka x1 i x2;
+  - Szabrownicy w prototypie, cała osada jako mapa prototypu;
+  - bez zwierząt w walce, ogień bez rozprzestrzeniania;
+  - religia rozbudowana jak w Crusader Kings, gangi, moneta zamiast soli;
+  - wybory raz w roku, więcej praw nieodwracalnych;
+  - muzyka adaptacyjna, bez głosów;
+  - przemoc wobec dzieci pokazywana wprost;
+  - wydanie na Steam po polsku i angielsku.
 

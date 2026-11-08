@@ -24,6 +24,115 @@ Gracz nie steruje walką. Buduje osadę, ustala prawa, wyposaża ludzi i szkoli 
 - **Odczuwalna skala:** od „starego karabinu Zenka” do tabel Wzorów mikropaństwa.
 - **Epoki technologiczne:** od dzid i łuków do coraz lepszego sprzętu.
 
+## Decyzje z ankiety (8 listopada 2026)
+
+Odpowiedzi na 146 pytań z ankiety są w `ODPOWIEDZI_2026-11-08.md`. Ta sekcja streszcza ustalenia, które zmieniają albo uzupełniają koncept. Przy sprzeczności z resztą dokumentu ważniejsza jest ta sekcja.
+
+**Technika i wydanie:**
+
+- Kod i klucze danych po angielsku, po polsku tylko teksty gry.
+- Dane w JSON (zapisy później w formacie binarnym). Mody z folderu `mods/`: dane, bez skryptów.
+- Gra trafi na Steam, od razu po polsku i angielsku, więc teksty od pierwszego dnia są w plikach tłumaczeń. Demo to pionowy wycinek Złomu (jedna zima, jeden region).
+- Testy na komputerze użytkownika: GTX 1660 Super i Ryzen 7 5800X. Budżet grafiki ustawiamy pod tę kartę: render w 640×360, mało świateł z cieniami naraz, scalone siatki postaci.
+- Prototyp od razu na modelach `.glb` z animacjami, ale po teście shadera.
+- **Kamera obraca się płynnie, pod dowolnym kątem.** Pixel art przy obrocie migocze, więc przyciągamy kamerę do siatki tekseli i stabilizujemy kontur.
+
+**Walka:**
+
+- 70% wyłączonych z walki to ranni do uratowania.
+- **Nocna obrona trwa 3–6 minut.** Walki są 2–4 na tydzień gry i każda jest oglądana.
+- **Tempo:** osada do x4, walka tylko x1 i x2 oraz pauza.
+- Kamera sama przybliża i zwalnia w kluczowych momentach (można wyłączyć), ale **domyślnego przybliżenia na start walki nie ma**. Czytelność składu dają mocniejsze barwy i obwódki pod jednostkami.
+- **Każdy celuje w strefy ciała** z precyzją zależną od wyszkolenia (Snajper najlepiej).
+- **Ogień pali się tylko w miejscu trafienia**, bez rozprzestrzeniania po terenie.
+- **Bez zwierząt gracza w walce.** Wrogie zwierzęta i mutanty zostają. Do decyzji: co ze szkołą Tresury i Psiarzem.
+- Zatwierdzone propozycje:
+  - amunicja co do sztuki;
+  - zużycie i zacięcia;
+  - podnoszenie broni;
+  - noc tylko w świetle;
+  - pogoda;
+  - niszczenie pancerza;
+  - jeńcy;
+  - wnętrza budynków (po prototypie);
+  - wysokość;
+  - odbicia granatów;
+  - zdarzenia nocy bez ataku.
+- AI dowódców przyjęte w całości (wszystkie propozycje A1–A9).
+
+**Prototyp walki:**
+
+- 4 szkoły: Tarczownik, Rębacz, Strzelec, Sanitariusz, Zwiadowca. Skład ma 6 osób, a poziom dowódcy (1–3) i jego specjalizacje można zmieniać.
+- Broń: nóż, rura, maczeta, dzida, włócznia z tarczą, łuk z rurek, kusza, młot.
+- **Wrogowie: Szczurza Fala, Ogar, Krzykacz, Nosiciel i Szabrownicy**, czyli od razu walka z ludźmi, gdzie wróg ma tego samego „mózg” dowódcy.
+- **Mapa: cała mała osada z kręgiem światła.**
+- Raport po walce: oś czasu, ocena decyzji, wkład klas, diagnoza.
+
+**Ludzie:**
+
+- Szkoły klas od 16 lat.
+- Ukryte cechy: 1–3 obok 2–3 jawnych, z pełnym katalogiem do rozpisania.
+- Starzenie się jest powolne, a pary i narodziny dzieją się w tle.
+- Zmutowani mogą być dowódcami, ale oś Mgły wpływa na posłuch.
+- 10–15 postaci z historią na kampanię.
+- **Jedne stopnie wojskowe dla wszystkich ustrojów.**
+- 3 sylwetki i 2 wzrosty, portrety 64×64 w sepii.
+- Katalog klas jest przyjęty, ale użytkownik chce przejrzeć każdą szkołę osobno.
+
+**Osada:**
+
+- Zatwierdzone propozycje:
+  - tabela priorytetów pracy;
+  - wspólny magazyn;
+  - pożary i zawalenia;
+  - przebudowa do epoki za 60% kosztu;
+  - choroby;
+  - zmiana nocna od Pary;
+  - wysokość terenu;
+  - budynki z zestawu części post-apo;
+  - racjonowanie jako dylemat.
+- **Przestępczość rozbudowana, z gangami** (system do zaprojektowania).
+- **Pieniądz:** w osadzie wymiana, a w handlu moneta (nie sól) od Kuźni.
+- **Drogi:** ścieżki powstają same od ruchu, a gracz może też układać drogi, które przyspieszają ruch.
+- **Pompa psuje się co jakiś czas i zamarza zimą.** Studnia odzyskuje sens.
+
+**Polityka:**
+
+- 64 nazwy ustrojów przyjęte roboczo.
+- Prawa do 6 osi przypisuje Claude, a użytkownik przegląda.
+- 4 wersje komisarza według osi Władza i Porządek, a Kaznodzieja zależy od religii.
+- **Sejm łączy trzy mechanizmy:** głosowanie posłów z ruchów, referendum i doradztwo. Do decyzji: kiedy który.
+- **Wybory raz w roku gry.**
+- Autorytaryzm: napięcie 0–100 i pucz od 70. Przywódca z cechami i następcą.
+- **Religia rozbudowana:** dogmaty, herezje, święci, w stylu Crusader Kings (system do zaprojektowania).
+- Pozostałe ustalenia:
+  - frakcje wewnętrzne mogą odejść;
+  - gracz może przeprowadzić zamach;
+  - propaganda działa przez budynki i prawa;
+  - podgląd skutków prawa;
+  - 6 suwaków osi w Ratuszu;
+  - **więcej praw nieodwracalnych.**
+
+**Frakcje, mapa, epoki, wrogowie, broń:**
+
+- Wszystkie propozycje przyjęte, z jednym wyjątkiem: **Dzieci Lasu nie karzą za wyrąb.**
+- 5 nowych wrogów (Gawra, Wodnik, Szerszenie, Tkacz, Gruczolak) dochodzi do gry.
+
+**Interfejs, grafika, dźwięk, fabuła, kampania:**
+
+- Wszystkie propozycje interfejsu przyjęte, a test shadera robimy przed nowymi modelami.
+- **Muzyka zależy od ustroju, epoki i walki**, czyli jest adaptacyjna.
+- **Bez głosów postaci.**
+- Fabuła i kampania według propozycji:
+  - wydarzenia;
+  - tekstowy kronikarz;
+  - Archiwum Zasłony;
+  - trzy poziomy trudności i tryb żelazny;
+  - 3 starty i wszystkie ustawienia kampanii;
+  - tylko zakończenia, bez punktów;
+  - gra po końcu świata.
+- **Treści drażliwe, także przemoc wobec dzieci, są pokazywane wprost** (decyzja użytkownika).
+
 ## Świat
 
 Akcja dzieje się w fikcyjnej Europie Środkowej po nadejściu Mgły, z polskimi imionami i swojskim krajobrazem: bloki, ruiny miasteczek, lasy, bagna, tory.
@@ -83,7 +192,7 @@ Porażki: zgaszona Latarnia, upadek osady, utrata wszystkich ludzi. Rewolucja i 
 
 **Treści drażliwe** (decyzja z 8 listopada): praca dzieci, egzekucje, przetwarzanie zmarłych i kategorie przydatności są **pokazywane wprost**, także jako sceny w grze, a na starcie jest ostrzeżenie o treściach. Gra nie moralizuje: skutki wynikają z ludzi.
 
-Do potwierdzenia (propozycja Claude): przemoc wobec dzieci nigdy nie jest pokazywana na ekranie, bo wiele sklepów i systemów ocen wiekowych tego nie przepuszcza.
+Ankieta z 8 listopada: przemoc wobec dzieci też jest pokazywana wprost. Uwaga do wydania: to podnosi ocenę wiekową, a w części krajów (np. Niemcy, Australia) grozi odmową klasyfikacji. Wersja na te rynki może wymagać zamiany takich scen na tekst.
 
 ## Pula wydarzeń
 
@@ -721,7 +830,7 @@ Kolejni ludzie zmienieni przez Mgłę:
 | Zakon Latarników | technokracja, wystandaryzowani, dowódcy 4–5 | granat i żółć lampy | latarnia w kole z ośmioma promieniami | Kadet, Strzelec Zakonu, Tarczownik Zakonu, Sygnalista, Inżynier, Latarnik bojowy (lanca), Oficer |
 | Dezerterzy | twoi wygnańcy, znają słabe punkty osady | twoje barwy, przekreślone | twój sztandar do góry nogami | te same klasy co twoi wojownicy, w sprzęcie, który ze sobą zabrali |
 | Bractwo Bunkra | resztki wojska ze schronu, wcześnie mają broń z epoki Naboju, ufają tylko swoim | oliwka i ostrzegawczy pomarańcz | maska gazowa w trójkącie ostrzegawczym | Szeregowiec w masce, Kaemista, Snajper, Saper, Medyk, Pancerny (ciężki kombinezon), Sierżant |
-| Gildia Solna | liga kupiecka, sól i pieniądz, wynajmuje najemników | biel soli i błękit | waga z kryształem soli | Strażnik karawany, Pikinier karawany, Kusznik Gildii, Najemnik, Zabójca (cichy nóż), Poganiacz wołów, Faktor |
+| Gildia Solna | liga kupiecka, bije monetę i handluje solą, wynajmuje najemników | biel soli i błękit | waga z kryształem soli | Strażnik karawany, Pikinier karawany, Kusznik Gildii, Najemnik, Zabójca (cichy nóż), Poganiacz wołów, Faktor |
 | Dzieci Lasu | żyją na skraju Mgły w lasach, pułapki i łuki | mech i ochra | poroże z gałęzi | Łucznik, Traper, Oszczepnik, Zwiadowca z psem, Strzelec z muszkietem, Strażnik Gaju (topór), Szaman (zioła, maski z kory) |
 | Republika Tamy | społeczność elektrowni wodnej, własna sieć światła, rywal latarni | stal i turkus | błyskawica nad łukiem tamy | Milicjant, Elektryk (pałka elektryczna), Strzelec, Operator reflektora, Inżynier, Gwardzista Tamy (pancerz), Komisarz |
 
@@ -1267,7 +1376,7 @@ Rozważany był też Rust z Bevy: bardzo wydajny, ale ze słabym jeszcze interfe
 
 **Render:**
 
-- Kamera ortograficzna po przekątnej: nachylenie około 52°, obrót kamery, przybliżanie w kilku krokach. Postacie obracają się płynnie w dowolnym kierunku.
+- Kamera ortograficzna po przekątnej: nachylenie około 52°, **płynny obrót pod dowolnym kątem** (kamera przyciągana do siatki tekseli, żeby pixel art nie migotał), przybliżanie w kilku krokach. Postacie obracają się płynnie w dowolnym kierunku.
 - Scena renderowana do **640×360** i powiększana ×3 do 1080p bez wygładzania (nearest).
 - Shader materiału daje pasma cel-shadingu i cienie przesunięte w chłodny fiolet.
 - Postproces daje kontur 1 px z bufora głębi (jaśniejszy po stronie światła), kwantyzację do palety przez LUT i dithering tylko w Mgle.

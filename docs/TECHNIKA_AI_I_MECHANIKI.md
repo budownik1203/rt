@@ -17,7 +17,7 @@ Dokument dla Claude, który będzie pisał grę. Opisuje architekturę, struktur
   - Żadnej równoległości w kroku, która zmienia stan. Wątki tylko do obliczeń bez efektów ubocznych, np. ocena planów, której wyniki zbiera się w ustalonej kolejności.
   - Liczby: `float` z ostrożnością. Pełna zgodność między maszynami nie jest wymagana, wystarczy powtarzalność na tej samej wersji, do powtórek i testów. **[do potwierdzenia]** Jeśli kiedyś miałby być tryb wieloosobowy, trzeba przejść na stałoprzecinkowe `Fix32`.
 - **Dane w plikach:** wszystkie liczby balansu w `data/*.json`. Kod ich nie zawiera.
-- **Nazewnictwo:** **[do potwierdzenia]** identyfikatory w kodzie po angielsku (`Fighter`, `Commander`), klucze danych po polsku bez ogonków (`karabin_powtarzalny`), teksty w grze po polsku w plikach tłumaczeń (`locale/pl.csv`).
+- **Nazewnictwo:** **[ustalone 8.11]** identyfikatory w kodzie i klucze danych po angielsku (`Fighter`, `pipe_bow`), a teksty gry w plikach tłumaczeń (polski i angielski od startu), teksty w grze po polsku w plikach tłumaczeń (`locale/pl.csv`).
 
 ## 2. Struktura repozytorium
 
