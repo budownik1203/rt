@@ -12,10 +12,11 @@ var yaw := -30.0
 var pitch_from_vertical := 52.0
 var ortho := 15.0
 var snap := true
-var mode := "still"
+var mode := "view"   # bez argumentów: podgląd interaktywny (Q/E obrót, kółko myszy przybliżenie, 1-4 efekty)
 var frame := 0
 var shots: Array = []
 var anim_players: Array = []
+var hud: Label
 
 func _ready() -> void:
 	var args := OS.get_cmdline_user_args()
@@ -35,6 +36,8 @@ func _ready() -> void:
 	cont.add_child(vp)
 	build_world()
 	build_camera()
+	if mode == "view":
+		hud = Label.new(); hud.position = Vector2(12, 8); hud.add_theme_font_size_override("font_size", 22); add_child(hud)
 	if mode == "still":
 		shots = [["pelny", true, true, true, 15.0], ["bez_palety", false, true, true, 15.0], ["surowy", false, false, false, 15.0], ["zblizenie", true, true, true, 7.0]]
 
@@ -182,8 +185,26 @@ func update_camera() -> void:
 		pos = basis * local
 	cam.global_transform = Transform3D(basis, pos)
 
-func _process(_dt: float) -> void:
+func _unhandled_input(ev: InputEvent) -> void:
+	if mode != "view": return
+	if ev is InputEventMouseButton and ev.pressed:
+		if ev.button_index == MOUSE_BUTTON_WHEEL_UP: ortho = max(5.0, ortho - 1.0)
+		if ev.button_index == MOUSE_BUTTON_WHEEL_DOWN: ortho = min(30.0, ortho + 1.0)
+		cam.size = ortho; update_camera()
+	if ev is InputEventKey and ev.pressed:
+		match ev.keycode:
+			KEY_1: post_mat.set_shader_parameter("use_palette", not post_mat.get_shader_parameter("use_palette"))
+			KEY_2: post_mat.set_shader_parameter("use_outline", not post_mat.get_shader_parameter("use_outline"))
+			KEY_3: post_mat.set_shader_parameter("use_fog", not post_mat.get_shader_parameter("use_fog"))
+			KEY_4: snap = not snap
+
+func _process(dt: float) -> void:
 	frame += 1
+	if mode == "view":
+		if Input.is_key_pressed(KEY_Q): yaw -= 60.0 * dt; update_camera()
+		if Input.is_key_pressed(KEY_E): yaw += 60.0 * dt; update_camera()
+		hud.text = "FPS: %d   wywołania rysowania: %d   ortho: %.0f m   [Q/E obrót, kółko: zoom, 1 paleta, 2 kontur, 3 Mgła, 4 snap=%s]" % [Engine.get_frames_per_second(), Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME), ortho, str(snap)]
+		return
 	if mode == "still":
 		if frame < 20: return
 		var i := (frame - 20) / 4
