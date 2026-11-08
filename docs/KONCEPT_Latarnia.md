@@ -45,7 +45,7 @@ Odpowiedzi na 146 pytań z ankiety są w `ODPOWIEDZI_2026-11-08.md`. Ta sekcja s
 - Kamera sama przybliża i zwalnia w kluczowych momentach (można wyłączyć), ale **domyślnego przybliżenia na start walki nie ma**. Czytelność składu dają mocniejsze barwy i obwódki pod jednostkami.
 - **Każdy celuje w strefy ciała** z precyzją zależną od wyszkolenia (Snajper najlepiej).
 - **Ogień pali się tylko w miejscu trafienia**, bez rozprzestrzeniania po terenie.
-- **Bez zwierząt gracza w walce.** Wrogie zwierzęta i mutanty zostają. Do decyzji: co ze szkołą Tresury i Psiarzem.
+- **Ze zwierząt gracza walczą tylko psy ze szkoły Tresury.** Zwierzęta juczne i inne zwierzęta osady nie walczą. Wrogie zwierzęta, mutanty i psy frakcji (Psiarz) zostają.
 - Zatwierdzone propozycje:
   - amunicja co do sztuki;
   - zużycie i zacięcia;
@@ -92,7 +92,7 @@ Odpowiedzi na 146 pytań z ankiety są w `ODPOWIEDZI_2026-11-08.md`. Ta sekcja s
   - budynki z zestawu części post-apo;
   - racjonowanie jako dylemat.
 - **Przestępczość rozbudowana, z gangami** (system do zaprojektowania).
-- **Pieniądz:** w osadzie wymiana, a w handlu moneta (nie sól) od Kuźni.
+- **Pieniądz:** w osadzie wymiana. W handlu od Kuźni krążą **solidy**, moneta bita przez Gildię Solną, które frakcje przyjmują różnie chętnie. Od epoki Naboju osada może bić własną monetę.
 - **Drogi:** ścieżki powstają same od ruchu, a gracz może też układać drogi, które przyspieszają ruch.
 - **Pompa psuje się co jakiś czas i zamarza zimą.** Studnia odzyskuje sens.
 
@@ -101,7 +101,10 @@ Odpowiedzi na 146 pytań z ankiety są w `ODPOWIEDZI_2026-11-08.md`. Ta sekcja s
 - 64 nazwy ustrojów przyjęte roboczo.
 - Prawa do 6 osi przypisuje Claude, a użytkownik przegląda.
 - 4 wersje komisarza według osi Władza i Porządek, a Kaznodzieja zależy od religii.
-- **Sejm łączy trzy mechanizmy:** głosowanie posłów z ruchów, referendum i doradztwo. Do decyzji: kiedy który.
+- **Sejm działa zależnie od wagi prawa:**
+  - zwykłe prawa przechodzą przez głosowanie posłów z ruchów;
+  - prawa nieodwracalne i zmiana ustroju idą do referendum;
+  - dekrety wojenne w czasie Przypływu i oblężenia wchodzą od razu, a Sejm tylko doradza.
 - **Wybory raz w roku gry.**
 - Autorytaryzm: napięcie 0–100 i pucz od 70. Przywódca z cechami i następcą.
 - **Religia rozbudowana:** dogmaty, herezje, święci, w stylu Crusader Kings (system do zaprojektowania).
