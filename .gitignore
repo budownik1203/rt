@@ -1,0 +1,11 @@
+# Godot / .NET
+.godot/
+.import/
+bin/
+obj/
+*.user
+# Python
+__pycache__/
+*.pyc
+# rozpakowane archiwa grafiki (źródło prawdy to zipy w assets/)
+assets/*/

@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<title>Latarnia – interfejs v2</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+:root{
+  --ink:#2a2018; --ink2:#4a3a2c; --faded:#7a6a58; --red:#9b2b22; --red2:#c0392b; --blue:#2d4a6b;
+  --paper:#e8dcc0; --paper2:#ddcfae; --paper3:#cdbd98; --wood1:#3b2a1d; --wood2:#2a1d14;
+  --lamp:1; --mist:.35; --dirt:0; --tissue:0;
+  --mono:"Courier New",Courier,"Liberation Mono",monospace;
+  --hand:"Segoe Print","Bradley Hand","Comic Sans MS",cursive;
+  --serif:Georgia,"Times New Roman",serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#120d09;overflow:hidden;font-family:var(--serif);color:var(--ink)}
+#stage{position:absolute;left:0;top:0;width:1600px;height:900px;transform-origin:0 0;overflow:hidden;
+  background:
+   radial-gradient(ellipse at 18% 8%, rgba(255,190,90,calc(.28*var(--lamp))) 0, transparent 38%),
+   repeating-linear-gradient(92deg, rgba(0,0,0,.08) 0 3px, transparent 3px 11px),
+   repeating-linear-gradient(90deg, var(--wood1) 0 140px, #33251a 140px 141px, var(--wood1) 141px 300px),
+   var(--wood2);}
+/* szum papieru */
+.paper{background-color:var(--paper);
+  background-image:
+   radial-gradient(circle at 80% 85%, rgba(120,80,40,calc(.05 + .3*var(--dirt))) 0 26px, transparent 34px),
+   radial-gradient(circle at 15% 20%, rgba(110,60,140,calc(.35*var(--tissue))) 0 26px, transparent 40px),
+   url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .35  0 0 0 0 .27  0 0 0 0 .18  0 0 0 .22 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>"),
+   linear-gradient(180deg, rgba(255,255,255,.15), rgba(0,0,0,calc(.06 + .2*var(--dirt))));
+  box-shadow:0 2px 0 rgba(0,0,0,.25), 0 12px 24px rgba(0,0,0,.45);
+  filter:saturate(calc(1 - .5*var(--dirt)));}
+.torn{clip-path:polygon(0 1%,4% 0,9% 1%,15% 0,22% 1%,30% 0,38% 1%,46% 0,55% 1%,63% 0,71% 1%,80% 0,88% 1%,95% 0,100% 1%,100% 99%,94% 100%,86% 99%,78% 100%,70% 99%,61% 100%,52% 99%,44% 100%,35% 99%,27% 100%,18% 99%,10% 100%,3% 99%,0 100%)}
+.tape{position:absolute;width:80px;height:24px;background:rgba(230,220,170,.55);box-shadow:0 1px 2px rgba(0,0,0,.2);transform:rotate(-6deg)}
+.staple{position:absolute;width:26px;height:5px;border:2px solid #8a8a8a;border-bottom:none;border-radius:2px;box-shadow:0 1px 0 rgba(0,0,0,.4)}
+.mono{font-family:var(--mono)} .hand{font-family:var(--hand)}
+.num{font-family:var(--mono);font-weight:bold;letter-spacing:.5px}
+
+/* STREFY */
+#top{position:absolute;left:130px;top:10px;width:1460px;height:62px;display:flex;gap:10px;z-index:20}
+#left{position:absolute;left:0;top:10px;width:122px;height:840px;z-index:20}
+#main{position:absolute;left:138px;top:84px;width:1068px;height:770px;z-index:5}
+#right{position:absolute;left:1218px;top:84px;width:372px;height:770px;z-index:15}
+#bottom{position:absolute;left:138px;top:862px;width:1452px;height:34px;display:flex;gap:10px;z-index:20;align-items:center}
+
+/* górny pasek */
+.supply{flex:1;display:flex;align-items:center;gap:18px;padding:6px 18px;transform:rotate(-.3deg)}
+.supply .it{display:flex;flex-direction:column;align-items:center;line-height:1.05}
+.supply .it b{font-family:var(--mono);font-size:19px}
+.supply .it span{font-size:11px;color:var(--faded);text-transform:uppercase;letter-spacing:1px}
+.supply .it.low b{color:var(--red2);animation:pulse 1.2s infinite}
+.clock{width:300px;padding:6px 14px;display:flex;align-items:center;gap:10px;transform:rotate(.4deg)}
+.clock .d{font-family:var(--mono);font-size:15px}
+.clock .d b{font-size:20px}
+.speed button{font-family:var(--mono);background:none;border:1px solid var(--ink2);margin:0 1px;padding:2px 5px;cursor:pointer;color:var(--ink)}
+.speed button.on{background:var(--ink);color:var(--paper)}
+.lamp{width:62px;position:relative}
+.lamp .glow{position:absolute;left:-40px;top:-40px;width:140px;height:140px;border-radius:50%;
+  background:radial-gradient(circle, rgba(255,200,100,calc(.55*var(--lamp))) 0, transparent 60%);animation:flick 2.3s infinite;pointer-events:none}
+@keyframes flick{0%,100%{opacity:1}40%{opacity:.82}43%{opacity:.95}70%{opacity:.88}}
+@keyframes pulse{50%{opacity:.45}}
+
+/* zakładki */
+.tab{position:relative;display:block;width:118px;height:96px;margin-bottom:6px;padding:10px 8px 6px 14px;cursor:pointer;
+  transform:translateX(-12px) rotate(-1deg);transition:transform .18s ease;font-size:14px;font-weight:bold}
+.tab:hover{transform:translateX(-4px) rotate(0)}
+.tab.on{transform:translateX(4px) rotate(0);background-color:#f2e8d2}
+.tab small{display:block;font-family:var(--mono);font-weight:normal;font-size:11px;color:var(--faded);margin-top:4px}
+.tab .ico{position:absolute;right:8px;bottom:6px;width:30px;height:30px;opacity:.75}
+.tab .key{position:absolute;right:8px;top:6px;font-family:var(--mono);font-size:11px;border:1px solid var(--faded);padding:0 4px}
+
+/* ekrany */
+.screen{position:absolute;inset:0;display:none}
+.screen.on{display:block;animation:slidein .42s cubic-bezier(.2,.8,.3,1)}
+@keyframes slidein{from{transform:translate(40px,30px) rotate(2.5deg);opacity:0}to{transform:none;opacity:1}}
+.sheet{position:absolute;padding:22px 26px}
+h1,h2,h3{margin:0 0 8px;font-weight:normal}
+h1{font-family:var(--mono);font-size:24px;letter-spacing:3px;text-transform:uppercase}
+h2{font-family:var(--mono);font-size:17px;letter-spacing:2px;text-transform:uppercase;border-bottom:1px dashed var(--ink2);padding-bottom:3px;margin-top:10px}
+h3{font-size:15px;font-weight:bold}
+.muted{color:var(--faded)}
+table.t{border-collapse:collapse;width:100%;font-size:13px}
+table.t td,table.t th{border-bottom:1px solid rgba(60,40,20,.25);padding:3px 4px;text-align:left}
+table.t th{font-family:var(--mono);font-weight:normal;font-size:11px;text-transform:uppercase;color:var(--faded)}
+.btn{font-family:var(--mono);font-size:13px;background:var(--paper2);border:1.5px solid var(--ink);padding:4px 10px;cursor:pointer;box-shadow:2px 2px 0 var(--ink);transition:transform .08s}
+.btn:hover{background:#f5ecd6} .btn:active{transform:translate(2px,2px);box-shadow:none}
+.btn.red{border-color:var(--red);color:var(--red);box-shadow:2px 2px 0 var(--red)}
+.tag{display:inline-block;font-family:var(--mono);font-size:11px;padding:0 5px;border:1px solid;margin-right:3px}
+.tag.own{color:#2f5d2a;border-color:#2f5d2a}.tag.rel{color:#8a6a10;border-color:#8a6a10}.tag.for{color:var(--red);border-color:var(--red)}
+
+/* pieczątka */
+.stamp{position:absolute;font-family:var(--mono);font-weight:bold;font-size:22px;letter-spacing:3px;color:var(--red2);border:3px double var(--red2);padding:4px 12px;
+  transform:rotate(-12deg);opacity:.85;mix-blend-mode:multiply;pointer-events:none}
+.stamp.hit{animation:stamp .38s cubic-bezier(.3,1.6,.5,1)}
+@keyframes stamp{0%{transform:rotate(-12deg) scale(2.2);opacity:0}60%{transform:rotate(-12deg) scale(.95);opacity:1}100%{transform:rotate(-12deg) scale(1)}}
+.shake{animation:shake .35s}
+@keyframes shake{20%{transform:translate(-3px,1px)}40%{transform:translate(3px,-1px)}60%{transform:translate(-2px,2px)}80%{transform:translate(2px,-1px)}}
+
+/* mgła na krawędziach */
+#mist{position:absolute;inset:0;pointer-events:none;z-index:30;
+  background:radial-gradient(ellipse at 50% 50%, transparent calc(70% - 30%*var(--mist)), rgba(120,130,170,calc(.55*var(--mist))) 100%);
+  animation:mist 9s ease-in-out infinite alternate;mix-blend-mode:screen}
+@keyframes mist{from{filter:blur(0)}to{filter:blur(6px);opacity:.8}}
+
+/* panel prawy */
+#panel{position:absolute;inset:0;padding:18px 20px;overflow:auto;transform:translateX(420px);transition:transform .35s cubic-bezier(.2,.8,.3,1)}
+#panel.on{transform:none}
+#panel .close{position:absolute;right:12px;top:8px;cursor:pointer;font-family:var(--mono)}
+.panel-hint{position:absolute;inset:0;padding:30px;font-size:14px;transform:rotate(1deg)}
+
+/* osada */
+.view{position:absolute;left:14px;top:14px;width:1040px;height:585px;background:#000;box-shadow:0 0 0 8px #e8dcc0,0 0 0 9px #9b8a6a,0 14px 28px rgba(0,0,0,.6);transform:rotate(-.4deg);overflow:hidden}
+.view img{width:100%;height:100%;image-rendering:pixelated;display:block}
+.hot{position:absolute;cursor:pointer;border:2px dashed transparent;transition:border-color .15s, background .15s}
+.hot:hover{border-color:rgba(255,220,140,.9);background:rgba(255,220,140,.08)}
+.hot .lbl{position:absolute;left:50%;top:-26px;transform:translateX(-50%);white-space:nowrap;background:var(--paper);font-family:var(--mono);font-size:12px;padding:2px 7px;opacity:0;transition:opacity .15s;box-shadow:0 2px 4px rgba(0,0,0,.5)}
+.hot:hover .lbl{opacity:1}
+.ember{position:absolute;width:3px;height:3px;background:#ffb24a;border-radius:50%;animation:ember 2.4s linear infinite;pointer-events:none}
+@keyframes ember{from{transform:translate(0,0);opacity:1}to{transform:translate(12px,-60px);opacity:0}}
+.notes{position:absolute;left:14px;top:612px;width:1040px;height:150px;display:flex;gap:14px}
+.note{flex:1;padding:10px 12px;font-size:13px;position:relative}
+.bar{height:9px;background:rgba(60,40,20,.15);position:relative}
+.bar i{position:absolute;left:0;top:0;bottom:0;background:var(--ink2)}
+
+/* ludzie */
+.reg{position:absolute;left:10px;top:10px;width:300px;height:750px;padding:16px;transform:rotate(-.6deg)}
+.reg .row{display:flex;justify-content:space-between;padding:5px 4px;border-bottom:1px dotted rgba(60,40,20,.35);cursor:pointer;font-size:14px}
+.reg .row:hover,.reg .row.on{background:rgba(255,255,255,.35)}
+.folder{position:absolute;left:330px;top:4px;width:730px;height:760px;padding:24px 30px;background-color:#d8c08e;transform:rotate(.5deg)}
+.folder .inner{position:absolute;left:18px;top:30px;right:18px;bottom:16px;padding:20px 24px;overflow:auto}
+.portrait{float:right;width:120px;height:150px;margin:0 0 10px 14px;border:3px solid #fff;box-shadow:0 3px 8px rgba(0,0,0,.4);transform:rotate(3deg);background:#3a3448}
+.q{display:inline-block;min-width:110px;border-bottom:1px solid var(--ink2);margin:2px 8px 2px 0;font-family:var(--hand);font-size:13px}
+.q.unk{color:var(--faded)}
+.red{color:var(--red)}
+
+/* mapa */
+#mapwrap{position:absolute;left:10px;top:10px;width:1048px;height:750px;overflow:hidden;cursor:grab;background:#cdbd98;box-shadow:0 10px 22px rgba(0,0,0,.5)}
+#mapwrap:active{cursor:grabbing}
+#mapsvg{position:absolute;left:0;top:0;transform-origin:0 0}
+.maptools{position:absolute;left:20px;top:20px;padding:10px 12px;z-index:3;font-size:12px;width:250px}
+.pin{cursor:pointer}
+
+/* ratusz */
+.decree{position:absolute;width:300px;padding:16px 18px 20px;font-size:13px;cursor:pointer;transition:transform .2s}
+.decree:hover{transform:translateY(-6px) rotate(0)!important;z-index:5}
+.seal{position:absolute;right:14px;bottom:-14px;width:46px;height:46px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#c94b3a,#7a1c14);box-shadow:0 2px 3px rgba(0,0,0,.5);color:#f0d8c8;font-family:var(--mono);font-size:10px;display:flex;align-items:center;justify-content:center;text-align:center}
+
+/* zeszyty */
+.nb{position:absolute;left:20px;top:14px;width:975px;height:740px;background:#2d3a2c;border-radius:6px;box-shadow:0 14px 26px rgba(0,0,0,.6);padding:16px}
+.nb .pages{position:absolute;left:16px;top:16px;right:16px;bottom:16px;background-color:#efe6cf;
+  background-image:repeating-linear-gradient(180deg, transparent 0 25px, rgba(70,110,160,.25) 25px 26px);
+  padding:18px 26px;overflow:auto}
+.nbtabs{position:absolute;right:-60px;top:30px;display:flex;flex-direction:column;gap:6px}
+.nbtabs div{width:56px;padding:10px 6px;background:var(--paper2);font-family:var(--mono);font-size:11px;writing-mode:vertical-rl;cursor:pointer;box-shadow:2px 2px 4px rgba(0,0,0,.4)}
+.nbtabs div.on{background:#f5ecd6}
+.board{display:grid;grid-template-columns:90px repeat(5,1fr);gap:6px;font-size:12px}
+.board .h{font-family:var(--mono);font-size:11px;text-transform:uppercase;color:var(--faded);text-align:center}
+.tech{background:rgba(255,255,255,.55);border:1px solid rgba(60,40,20,.4);padding:4px 6px;min-height:40px;cursor:pointer;transition:transform .12s;position:relative}
+.tech:hover{transform:scale(1.04);z-index:2;box-shadow:0 3px 8px rgba(0,0,0,.3)}
+.tech.done{background:rgba(120,160,100,.35)} .tech.key::after{content:"★";position:absolute;right:3px;top:1px;color:#8a6a10}
+.tech.alt{border:1.5px dashed var(--red)} .tech.lock{opacity:.4;filter:blur(.4px)}
+.ink{animation:ink 1.6s steps(40) both}
+@keyframes ink{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+
+/* walka */
+.bubble{position:absolute;background:#fffbe8;border:2px solid #222;font-family:var(--mono);font-size:11px;padding:3px 6px;white-space:nowrap;box-shadow:2px 2px 0 rgba(0,0,0,.6);animation:pop .3s cubic-bezier(.3,1.7,.5,1)}
+.bubble::after{content:"";position:absolute;left:12px;bottom:-8px;border:6px solid transparent;border-top-color:#222}
+@keyframes pop{from{transform:scale(0)}to{transform:scale(1)}}
+.tl{position:relative;height:46px;margin:6px 0 14px;border-top:2px solid var(--ink2)}
+.tl .ev{position:absolute;top:-7px;width:12px;height:12px;border-radius:50%;background:var(--ink2);cursor:pointer}
+.tl .ev.bad{background:var(--red2)} .tl .ev.ok{background:#2f5d2a}
+.tl .ev span{position:absolute;top:14px;left:-30px;width:90px;font-size:10px;font-family:var(--mono);text-align:center}
+
+/* kompleks drzewko */
+.tree{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px 30px;margin:10px 0;position:relative}
+.cls{border:1.5px solid var(--ink2);padding:5px 7px;background:rgba(255,255,255,.5);font-size:12px;cursor:pointer;position:relative}
+.cls:hover{background:#fffbe8}.cls.sel{outline:3px solid #8a6a10}
+.cls b{display:block;font-size:13px}
+.trainee{display:flex;justify-content:space-between;font-size:12px;padding:3px 2px;border-bottom:1px dotted rgba(60,40,20,.3)}
+.trainee.no{color:var(--faded);text-decoration:line-through}
+.trainee.no em{text-decoration:none;font-style:normal;color:var(--red);font-size:11px;margin-left:6px}
+
+/* alarmy */
+.alarm{padding:5px 12px;font-size:13px;cursor:pointer;transform:rotate(-1deg)}
+.alarm.hot2{background-color:#e9c9b8;animation:shake .5s 2}
+.dbg{margin-left:auto;font-family:var(--mono);font-size:11px;color:#c9b996}
+.dbg label{margin-left:8px;cursor:pointer}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="left"></div>
+  <div id="top">
+    <div class="clock paper torn">
+      <div class="lamp"><div class="glow"></div>
+        <svg width="40" height="50" viewBox="0 0 40 50"><rect x="14" y="2" width="12" height="6" fill="#2a2018"/><path d="M10 8h20l3 26H7z" fill="#3a2c1e"/><path d="M13 12h14l2 18H11z" fill="#ffd27a" opacity=".9"/><rect x="6" y="34" width="28" height="6" fill="#2a2018"/></svg>
+      </div>
+      <div class="d">Dzień <b>12</b> · jesień<br><span id="time">21:40</span> · noc</div>
+      <div class="speed"><button>II</button><button class="on">×1</button><button>×2</button><button>×4</button></div>
+    </div>
+    <div class="supply paper torn" id="supply"></div>
+  </div>
+  <div id="main">
+    <!-- OSADA -->
+    <div class="screen" id="s-osada">
+      <div class="view" id="view"><img src="__OSADA__" alt="osada nocą"></div>
+      <div class="notes">
+        <div class="note paper" style="transform:rotate(-1deg)"><div class="staple" style="left:20px;top:-3px"></div><h3>Latarnia</h3>
+          Moc 1 · promień 7 kratek<br>Paliwo na dobę: <span class="num">8,5</span><br>Zapas: <span class="num" id="fueldays">2,1 dnia</span>
+          <div class="bar" style="margin-top:6px"><i id="fuelbar" style="width:35%"></i></div>
+          <div style="margin-top:6px"><button class="btn" onclick="moc(-1)">− moc</button> <button class="btn" onclick="moc(1)">+ moc</button></div></div>
+        <div class="note paper" style="transform:rotate(.8deg)"><div class="tape" style="left:110px;top:-10px"></div><h3>Noc nr 12</h3>
+          <span class="hand">Zwiad: ślady 2–3 Ogarów od zachodu. Warta: Bartek, Ola.</span><br><br>
+          <button class="btn red" onclick="alarmFx()">Uderz w dzwon</button></div>
+        <div class="note paper" style="transform:rotate(-.5deg)"><h3>Praca dziś</h3>
+          <table class="t"><tr><td>Drwale</td><td class="num">2</td><td>Smolarz</td><td class="num">1</td></tr>
+          <tr><td>Grzybiarze</td><td class="num">2</td><td>Kucharz</td><td class="num">1</td></tr>
+          <tr><td>Wyprawa</td><td class="num">3</td><td>Badacz</td><td class="num">1</td></tr></table>
+          <span class="muted" style="font-size:12px">Klik w budynek na widoku otwiera jego panel.</span></div>
+      </div>
+    </div>
+    <!-- LUDZIE -->
+    <div class="screen" id="s-ludzie">
+      <div class="reg paper"><h1>Rejestr</h1><div class="muted mono" style="font-size:11px;margin-bottom:6px">10 osób · filtr: wszyscy</div><div id="reglist"></div></div>
+      <div class="folder paper"><div class="tape" style="left:300px;top:-8px"></div><div class="inner paper" id="akta"></div></div>
+    </div>
+    <!-- ZBROJOWNIA -->
+    <div class="screen" id="s-zbroj">
+      <div class="sheet paper" style="left:10px;top:10px;width:640px;height:750px;transform:rotate(-.5deg)">
+        <h1>Zbrojownia</h1><div class="muted">Ewidencja zbrojowni · Wzory: zablokowane do Standaryzacji (Para)</div>
+        <h2>Magazyn</h2><table class="t" id="mag"></table>
+        <h2>Wzory (podgląd na Parę)</h2>
+        <table class="t"><tr><th>Wzór</th><th>Sloty</th><th>Kompletów</th><th>Braki</th></tr>
+        <tr><td>Strzelec-2</td><td>karabin gwintowany, nóż, płaszcz, 2 bandaże</td><td class="num">4/6</td><td class="red">2 płaszcze</td></tr>
+        <tr><td>Tarczownik-1</td><td>włócznia, tarcza okuta, kolczuga, hełm</td><td class="num">6/6</td><td>—</td></tr></table>
+      </div>
+      <div class="sheet paper torn" style="left:670px;top:20px;width:385px;height:720px;transform:rotate(.7deg)">
+        <h1>Sylwetka</h1><div class="muted" style="font-size:12px">Klik w przedmiot z magazynu, żeby założyć.</div>
+        <svg viewBox="0 0 200 330" width="300" height="470" style="display:block;margin:6px auto">
+          <g fill="none" stroke="#2a2018" stroke-width="2"><circle cx="100" cy="40" r="22"/><path d="M70 70h60l10 110h-80z"/><path d="M70 72l-30 90M130 72l30 90M80 180l-8 130M120 180l8 130"/></g>
+          <g font-family="Courier New" font-size="10"><text x="128" y="30" id="eq-glowa">głowa: hełm z garnka</text><text x="140" y="110" id="eq-tors">tors: kamizelka z blachy</text>
+          <text x="2" y="170" id="eq-reka">ręka: dzida</text><text x="140" y="175" id="eq-druga">druga: —</text><text x="2" y="250" id="eq-ubior">ubiór: płaszcz z plandeki</text></g></svg>
+      </div>
+    </div>
+    <!-- MAPA -->
+    <div class="screen" id="s-mapa">
+      <div id="mapwrap"><svg id="mapsvg" width="3200" height="2100"></svg>
+        <div class="maptools paper"><h3>Mapa regionu</h3><span class="muted">Przeciągnij, kółko = przybliżenie. Klik w pionek składu, potem w cel.</span>
+          <div style="margin-top:6px">Marsz: <select id="tempo"><option>zwykły</option><option>forsowny</option><option>ukradkowy</option><option>nocny</option></select></div>
+          <div id="route" class="mono" style="margin-top:6px;font-size:12px">Brak trasy.</div></div>
+      </div>
+    </div>
+    <!-- RATUSZ -->
+    <div class="screen" id="s-ratusz">
+      <div class="sheet paper" style="left:10px;top:10px;width:420px;height:420px;transform:rotate(-1deg)">
+        <h1>Kurs osady</h1>
+        <div id="axes"></div>
+        <h2>Legitymacja</h2><div class="bar" style="height:14px"><i id="legbar" style="width:58%;background:#2f5d2a"></i></div><span class="num" id="legnum">58</span>
+        <h2>Głosy z ulicy</h2>
+        <div class="hand" style="font-size:13px">„Racje równe, a ja kopię cały dzień.” — Antoni, kowal<br>„Dopóki pali się światło, wytrzymamy.” — Halina<br>„Sowa znowu gadała z Mgłą.” — anonim</div>
+      </div>
+      <div class="sheet paper torn" style="left:10px;top:450px;width:420px;height:300px;transform:rotate(.6deg)" id="preview"><h1>Podgląd prawa</h1><span class="muted">Najedź na dekret, żeby zobaczyć skutki przed uchwaleniem.</span></div>
+      <div id="decrees" style="position:absolute;left:450px;top:0;width:610px;height:770px"></div>
+    </div>
+    <!-- ZESZYTY -->
+    <div class="screen" id="s-zeszyty">
+      <div class="nb"><div class="pages" id="nbpage"></div>
+        <div class="nbtabs"><div data-p="badania" class="on">Badania</div><div data-p="bestiariusz">Bestiariusz</div><div data-p="kronika">Kronika</div></div></div>
+    </div>
+    <!-- WALKA -->
+    <div class="screen" id="s-walka">
+      <div class="view" id="bview" style="height:540px"><img src="__BITWA__" alt="walka przy bramie"><div id="bubbles"></div></div>
+      <div class="notes" style="top:566px;height:196px">
+        <div class="note paper" style="flex:1.3"><h3>Raport po walce — Brama, noc 11</h3>
+          <div class="tl" id="tl"></div>
+          <div id="evdesc" class="hand" style="font-size:13px">Klik w punkt na osi czasu.</div>
+          <div class="stamp hit" style="right:20px;top:20px" id="rstamp">SPÓŹNIONA</div></div>
+        <div class="note paper" style="flex:.7"><h3>Diagnoza</h3><span class="hand" style="font-size:13px">Lewa flanka zauważona po 14 s. Potrzebny dowódca z Formacjami 3 albo łamacz na lewym skrzydle. Specjalizacja do szkolenia: <u>Orientacja w terenie</u>.</span>
+          <div style="margin-top:8px"><button class="btn" onclick="replay()">Powtórka z nakładkami</button> <button class="btn red">Flara (1)</button></div></div>
+      </div>
+    </div>
+  </div>
+  <div id="right" class="paper"><div class="panel-hint hand" id="hint">Panel kontekstowy.<br><br>Tu otwiera się budynek, człowiek, węzeł mapy albo prawo.<br><br>Nic nie nachodzi na pasek u góry ani na zakładki.</div><div id="panel"></div></div>
+  <div id="bottom">
+    <div class="alarm paper" onclick="go('mapa')">✉ Poseł Szabrowników czeka</div>
+    <div class="alarm paper" onclick="go('walka')">⚑ Raport: Brama, noc 11</div>
+    <div class="alarm paper" id="al3" onclick="go('osada')">⚠ Paliwo na 2 dni</div>
+    <div class="dbg">stan osady (podgląd efektów):
+      <label><input type="checkbox" id="dGlod"> głód</label>
+      <label><input type="checkbox" id="dZagr"> zagrożenie</label>
+      <label><input type="checkbox" id="dTk"> Odmienność</label>
+      <label>światło <input type="range" id="dLight" min="0" max="100" value="70" style="width:70px;vertical-align:middle"></label></div>
+  </div>
+  <div id="mist"></div>
+</div>
+<script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+// skalowanie sceny
+function fit(){const s=Math.min(innerWidth/1600,innerHeight/900);const st=$('#stage');st.style.transform=`translate(${(innerWidth-1600*s)/2}px,${(innerHeight-900*s)/2}px) scale(${s})`}
+addEventListener('resize',fit);fit();
+
+// ZAKŁADKI
+const TABS=[['osada','Osada','O','M4 18l8-8 8 8v10H4z'],['ludzie','Ludzie','L','M12 4a4 4 0 110 8 4 4 0 010-8zM4 26c0-6 4-9 8-9s8 3 8 9z'],['zbroj','Zbrojownia','Z','M6 24L22 6M18 6h4v4M6 6l16 18'],['mapa','Mapa','M','M3 6l7-3 8 3 7-3v20l-7 3-8-3-7 3z'],['ratusz','Ratusz','R','M4 10h20L14 3zM6 12v10M12 12v10M18 12v10M22 12v10M3 24h22'],['zeszyty','Zeszyty','N','M6 3h14v22H6zM9 8h8M9 12h8M9 16h5'],['walka','Walka','W','M5 23l14-14M15 5h4v4M7 17l4 4']];
+$('#left').innerHTML=TABS.map(([id,n,k,p],i)=>`<div class="tab paper" data-t="${id}" style="transform:translateX(-12px) rotate(${i%2?1:-1}deg)">${n}<span class="key">${k}</span><small>${['budowa, praca','akta, rejestr','sprzęt, Wzory','wyprawy, listy','prawa, ustrój','badania, wiedza','oglądanie'][i]}</small><svg class="ico" viewBox="0 0 28 28"><path d="${p}" fill="none" stroke="#2a2018" stroke-width="1.8"/></svg></div>`).join('');
+function go(t){$$('.screen').forEach(s=>s.classList.toggle('on',s.id==='s-'+t));$$('.tab').forEach(e=>e.classList.toggle('on',e.dataset.t===t));closePanel();if(t==='mapa')drawMap();if(t==='zeszyty')nb(curNb);}
+$$('.tab').forEach(e=>e.onclick=()=>go(e.dataset.t));
+addEventListener('keydown',e=>{const t=TABS.find(x=>x[2]===e.key.toUpperCase());if(t&&!e.target.matches('input,select'))go(t[0])});
+
+// ZAPASY
+const SUP=[['paliwo',18,'paliwo',1],['racje',22,'racje',1],['drewno',36,'drewno'],['złom',17,'złom'],['woda',15,'woda'],['metal',0,'metal'],['ludzie','10 / 12','ludzie']];
+$('#supply').innerHTML=SUP.map(([k,v,n,low])=>`<div class="it${low?' low':''}"><b>${v}</b><span>${n}</span></div>`).join('')+`<div style="margin-left:auto" class="hand">Mgła: rzadka · wiatr z zachodu</div>`;
+
+// PANEL
+function openPanel(html){$('#hint').style.display='none';const p=$('#panel');p.innerHTML='<span class="close" onclick="closePanel()">✕ zamknij</span>'+html;p.classList.remove('on');void p.offsetWidth;p.classList.add('on')}
+function closePanel(){$('#panel').classList.remove('on');$('#hint').style.display='block'}
+
+// OSADA — hotspoty (w % obrazu)
+const B={
+ latarnia:{n:'Latarnia',r:[45,9,10,55],e:'Złom',d:'Stara ceglana wieża, beczka smoły w szczycie.',ppl:['Halina (latarniczka)'],prod:'Moc 1: 0,5 paliwa/h nocą',up:'Kuźnia: wieniec soczewek (Soczewki I)'},
+ barak:{n:'Barak',r:[5,28,20,37],e:'Złom',d:'Dwa kontenery pod wspólnym daszkiem, dom dla 8 osób.',ppl:['8 / 8 miejsc'],prod:'Ogrzewanie: 1 drewno/noc (zima 2)',up:'Kuźnia: Dom murowany (6 os.)'},
+ magazyn:{n:'Magazyn',r:[21,5,18,36],e:'Złom',d:'Kontenery w podkowę pod plandeką.',ppl:['Antek (magazynier)'],prod:'Pojemność 400',up:'Kuźnia: szopa z okuciami'},
+ kuchnia:{n:'Kuchnia',r:[46,2,16,24],e:'Złom',d:'Zadaszenie z blachy, wielki gar z kotła.',ppl:['Zośka (kucharka)'],prod:'+25% racji · wytapianie tłuszczu 2:1',up:'Para: Stołówka'},
+ kuznia:{n:'Warsztat złomiarza',r:[67,11,20,36],e:'Złom',d:'Kontener z kowadłem z szyny, iskry przy klepaniu.',ppl:['Antoni (Rzemiosło 6)','wolne miejsce'],prod:'3 złomu → 2 blachy',up:'Para: Warsztat maszynowy'},
+ sklad:{n:'Skład paliwa',r:[79,47,13,24],e:'Złom',d:'Beczki pod plandeką, nasyp przeciwpożarowy.',ppl:['—'],prod:'Zapas: 18 / 60',up:'Para: węglarnia'},
+ studnia:{n:'Studnia',r:[36,62,9,18],e:'Złom',d:'Krąg z opon i cegły, kołowrót z rury.',ppl:['—'],prod:'20 wody dziennie',up:'Kuźnia: Filtr wody'},
+ szalas:{n:'Szałas',r:[11,68,10,17],e:'Złom',d:'Palety, blacha, piecyk z beczki.',ppl:['4 / 4'],prod:'Ogrzewanie 1 drewno/noc (zima 3)',up:'Barak'},
+ pole:{n:'Piwnica grzybowa',r:[23,84,24,16],e:'Złom',d:'Zejście obłożone oponami, wywietrzniki z rur.',ppl:['Marta','Józek','wolne miejsce'],prod:'3,5 żywności na osobę · zbiór za 1 dzień',up:'Kuźnia: murowane wejście'}
+};
+$('#view').insertAdjacentHTML('beforeend',Object.entries(B).map(([k,b])=>`<div class="hot" style="left:${b.r[0]}%;top:${b.r[1]}%;width:${b.r[2]}%;height:${b.r[3]}%" onclick="bld('${k}')"><span class="lbl">${b.n}</span></div>`).join('')+
+ Array.from({length:10},(_,i)=>`<span class="ember" style="left:${37.5+Math.random()*1.5}%;top:${45+Math.random()*2}%;animation-delay:${i*0.24}s"></span>`).join('')+
+ `<div class="hot" style="left:1%;top:1%;width:15%;height:14%;border-color:rgba(255,220,140,.4)" onclick="kompleks()"><span class="lbl" style="opacity:1;top:auto;bottom:-24px">Kompleks szkoleniowy ▸</span></div>`);
+function bld(k){const b=B[k];openPanel(`<h1>${b.n}</h1><div class="muted mono" style="font-size:12px">wersja epoki: ${b.e} · stan 74%</div><p class="hand" style="font-size:13px">${b.d}</p>
+ <h2>Ludzie</h2>${b.ppl.map(p=>`<div class="trainee"><span>${p}</span>${p.includes('wolne')?'<button class="btn" style="padding:0 6px">+ przydziel</button>':'<span class="muted">✕</span>'}</div>`).join('')}
+ <h2>Produkcja</h2><div>${b.prod}</div><div style="margin-top:6px">Priorytet: <select><option>normalny</option><option>wysoki</option><option>wstrzymaj</option></select></div>
+ <h2>Rozbudowa</h2><div>${b.up}</div><div class="muted" style="font-size:12px">Przebudowa: 60% kosztu nowego, w czasie prac 50% wydajności.</div>
+ <div style="margin-top:10px"><button class="btn">Przebuduj</button> <button class="btn red">Rozbierz (40%)</button></div>`)}
+
+// KOMPLEKS
+const SCH={'Walki wręcz':[['Tarczownik','Rębacz'],['Mur','Dzidnik','Łamacz','Nożownik'],['Mistrz tarczy','Pierwszy w wyłomie','Kat']],'Strzelecka':[['Strzelec'],['Strzelec wyborowy','Strzelec liniowy'],['Snajper','Weteran ognia']],'Sanitarna':[['Sanitariusz'],['Felczer','Sanitariusz bojowy'],['Lekarz polowy']],'Komisarzy':[['Opiekun składu → Politruk/Żandarm…'],['Komisarz liniowy','Komisarz polowy'],['Komisarz frontowy']]};
+const DESC={'Tarczownik':'Trzyma szyk i osłania sąsiadów. Bierz, gdy wrogowie szarżują albo strzelają. Sprzęt: tarcza, włócznia.','Rębacz':'Agresywny wojownik wręcz do kontrataków. Sprzęt: miecz, topór.','Łamacz':'Łamie pancerz i chitynę. Bierz przeciw Ogarom, Rozrostowi, pancernym. Sprzęt: młot.','Strzelec':'Podstawa ognia na średnim dystansie.','Strzelec wyborowy':'Pojedyncze, celne strzały z daleka; pierwszy cel: Krzykacz.','Sanitariusz':'Zatrzymuje krwotoki w walce, wynosi rannych.'};
+function kompleks(s='Walki wręcz',c='Tarczownik'){const t=SCH[s];openPanel(`<h1>Kompleks</h1><div class="muted mono" style="font-size:12px">Plac ćwiczeń · 4 skrzydła · sąsiedztwo +15% tempa</div>
+ <div style="margin:6px 0">${Object.keys(SCH).map(x=>`<span class="tag ${x===s?'own':''}" style="cursor:pointer" onclick="kompleks('${x}','${SCH[x][0][0]}')">${x}</span>`).join('')}</div>
+ <h2>Drzewko: ${s}</h2><div class="tree">${t.map((col,i)=>`<div>${col.map(n=>`<div class="cls ${n===c?'sel':''}" style="margin-bottom:8px" onclick="kompleks('${s}','${n}')"><b>${n}</b>${['II','III','IV'][i]}</div>`).join('')}</div>`).join('')}</div>
+ <h2>${c}</h2><div style="font-size:13px">${DESC[c]||'Opis klasy: do czego służy, kiedy ją brać, sprzęt klasy.'}</div>
+ <h2>Kursanci</h2><div class="muted" style="font-size:11px">Pokazani tylko pasujący; pozostali wyszarzeni z powodem.</div>
+ <div class="trainee"><span>Bartek (Rekrut I)</span><button class="btn" style="padding:0 6px">zapisz</button></div>
+ <div class="trainee"><span>Ola (Rekrut I)</span><button class="btn" style="padding:0 6px">zapisz</button></div>
+ <div class="trainee no"><span>Zenek (Strzelec II)</span><em>inna szkoła: przeszkolenie ×2 kosztu, −1 stopień</em></div>
+ <div class="trainee no"><span>Józek (cywil)</span><em>brak stopnia I</em></div>
+ <div class="muted" style="font-size:12px;margin-top:6px">Kurs: 3 dni bez służby · 6 amunicji ćwiczebnej.</div>`)}
+
+// LUDZIE
+const P=[{n:'Zenon „Zenek” Wilk',a:46,k:'Strzelec II',m:72,w:[['karabin (znaleziony)','own','100%'],['nóż','rel','80%'],['dzida','for','50%']],c:['Odważny','Uparty'],h:['Zimna krew','?','?'],hr:['po 40 s pod ogniem „nie drgnął”','',''],mut:[],o:[-20,10,-40]},
+ {n:'Halina Mróz',a:52,k:'Sanitariuszka II',m:64,w:[['nóż','rel','80%'],['pałka','for','50%']],c:['Litościwa'],h:['?','?'],hr:['',''],mut:[],o:[-30,-20,-10]},
+ {n:'Marta „Sowa”',a:24,k:'Zwiadowczyni II',m:58,w:[['łuk z rurek','own','100%'],['nóż','own','100%']],c:['Samotniczka'],h:['Cichy krok','?','?'],hr:['wyprawa bez wykrycia','',''],mut:['Oczy Mgły (Odmienność 31)'],o:[10,0,35]},
+ {n:'Antoni Kowal',a:39,k:'cywil · Rzemiosło 6',m:61,w:[['młot kowalski','for','50%']],c:['Pracowity'],h:['Złote ręce','?'],hr:['20 dni w warsztacie',''],mut:[],o:[0,45,0]},
+ {n:'Bartek Nowak',a:19,k:'Rekrut I',m:70,w:[['dzida','rel','80%'],['tarcza z blachy','rel','80%']],c:['Towarzyski'],h:['?','?','?'],hr:['','',''],mut:[],o:[15,-10,-5]},
+ {n:'Ola Wrona',a:22,k:'Rekrut I',m:68,w:[['dzida','rel','80%']],c:['Ponura'],h:['?','?'],hr:['',''],mut:[],o:[-5,0,-15]}];
+function axisBar(v,a,b){const x=50+v/2;return `<div style="display:flex;align-items:center;gap:6px;font-size:11px" class="mono"><span style="width:70px;text-align:right">${a}</span><div class="bar" style="flex:1"><i style="left:${Math.min(50,x)}%;width:${Math.abs(v)/2}%;background:${v<0?'#2d4a6b':'#8a6a10'}"></i><i style="left:50%;width:1px;background:#000"></i></div><span style="width:70px">${b}</span></div>`}
+function akta(i){const p=P[i];$$('.reg .row').forEach((r,j)=>r.classList.toggle('on',j===i));
+ $('#akta').innerHTML=`<div class="portrait"><svg viewBox="0 0 120 150" width="114" height="144"><rect width="120" height="150" fill="#3a3448"/><ellipse cx="60" cy="62" rx="26" ry="32" fill="#c9a07a"/><path d="M30 150c0-30 12-46 30-46s30 16 30 46z" fill="#4b3a2a"/><path d="M34 52c4-24 48-24 52 0-10-8-42-8-52 0z" fill="#2a2018"/><rect x="44" y="58" width="10" height="3" fill="#2a2018"/><rect x="66" y="58" width="10" height="3" fill="#2a2018"/>${p.mut.length?'<circle cx="49" cy="60" r="5" fill="#cfe3ff" opacity=".9"/><circle cx="71" cy="60" r="5" fill="#cfe3ff" opacity=".9"/>':''}</svg></div>
+ <h1 style="font-size:20px">${p.n}</h1><div class="mono" style="font-size:12px">lat ${p.a} · ${p.k} · morale <b>${p.m}</b></div>
+ <h2>Broń i kwalifikacja</h2><table class="t"><tr><th>Broń</th><th>Względem klasy</th><th>Skuteczność</th></tr>${p.w.map(w=>`<tr><td>${w[0]}</td><td><span class="tag ${w[1]}">${{own:'sprzęt klasy',rel:'pokrewny',for:'obcy'}[w[1]]}</span></td><td class="num">${w[2]}</td></tr>`).join('')}</table>
+ <div style="font-size:12px;margin-top:4px">Druga kwalifikacja: <span class="q unk">dostępna od stopnia III</span></div>
+ <h2>Cechy</h2><div>${p.c.map(c=>`<span class="q">${c}</span>`).join('')}</div>
+ <h2>Ukryte cechy</h2><div>${p.h.map((h,j)=>`<span class="q ${h==='?'?'unk':''}" title="${p.hr[j]}">${h}${h!=='?'?` <small class="muted">(${p.hr[j]})</small>`:''}</span>`).join('')}</div>
+ <div class="muted" style="font-size:11px">„?” odkrywa się w walce, na kursach, z czasem albo przez komisarza i felczera.</div>
+ ${p.mut.length?`<h2 class="red">Mutacje</h2><div class="red hand">${p.mut.join(', ')}</div>`:''}
+ <h2>Poglądy</h2>${axisBar(p.o[0],'Wspólnota','Wódz')}${axisBar(p.o[1],'Kolektyw','Prywatne')}${axisBar(p.o[2],'Czystość','Przemiana')}
+ <h2>Historia</h2><div class="hand ink" style="font-size:13px">Noc 4: zastrzelił Ogara przy bramie. Noc 9: wyniósł Bartka spod Krzykacza.</div>`;
+}
+$('#reglist').innerHTML=P.map((p,i)=>`<div class="row" onclick="akta(${i})"><span>${p.n.split(' ')[0]} ${p.n.split(' ').pop()}</span><span class="mono muted" style="font-size:11px">${p.k.split(' ')[0]}</span></div>`).join('');akta(0);
+
+// ZBROJOWNIA
+const MAG=[['dzida',6,'reka'],['włócznia',3,'reka'],['łuk z rurek',2,'reka'],['tarcza z blachy',4,'druga'],['kamizelka z blachy',3,'tors'],['hełm z garnka',5,'glowa'],['płaszcz z plandeki',7,'ubior'],['karabin bez amunicji',1,'reka']];
+$('#mag').innerHTML='<tr><th>Przedmiot</th><th>Szt.</th><th>Slot</th><th></th></tr>'+MAG.map(m=>`<tr><td>${m[0]}</td><td class="num">${m[1]}</td><td class="muted">${m[2]}</td><td><button class="btn" style="padding:0 6px" onclick="eq('${m[2]}','${m[0]}')">załóż</button></td></tr>`).join('');
+function eq(s,n){const el=$('#eq-'+s);el.textContent=el.textContent.split(':')[0]+': '+n;el.parentNode.parentNode.classList.add('shake');setTimeout(()=>el.parentNode.parentNode.classList.remove('shake'),400)}
+
+// MAPA
+let mapDone=false,mz=.55,mx=-300,my=-200,sel=null;
+function rnd(s){return()=>(s=(s*16807)%2147483647)/2147483647}
+let N=[],E=[];
+function drawMap(){const svg=$('#mapsvg');if(!mapDone){mapDone=true;const r=rnd(7);
+ const types=['ruiny','wieś','las','bagno','tory','przemysł','bunkier','gniazdo','osada'];
+ for(let i=0;i<150;i++){N.push({x:120+r()*2960,y:120+r()*1860,t:types[Math.floor(r()*types.length)],m:Math.floor(r()*6)})}
+ N[0]={x:1600,y:1050,t:'latarnia',m:0};
+ N.forEach((a,i)=>{const d=N.map((b,j)=>[j,Math.hypot(a.x-b.x,a.y-b.y)]).filter(q=>q[0]!==i).sort((p,q)=>p[1]-q[1]).slice(0,3);d.forEach(([j,dd])=>{if(dd<420&&!E.find(e=>(e[0]===j&&e[1]===i)))E.push([i,j,['szosa','ścieżka','tor','kanał'][Math.floor(r()*4)],Math.round(dd/60)])})});
+ let h=`<defs><filter id="pap"><feTurbulence baseFrequency=".02" numOctaves="3" seed="3"/><feColorMatrix values="0 0 0 0 .55 0 0 0 0 .47 0 0 0 0 .33 0 0 0 .5 0"/></filter><radialGradient id="mg"><stop offset="0" stop-color="#6a6f8a" stop-opacity=".55"/><stop offset="1" stop-color="#6a6f8a" stop-opacity="0"/></radialGradient></defs>
+ <rect width="3200" height="2100" fill="#d6c7a2"/><rect width="3200" height="2100" filter="url(#pap)"/>`;
+ // mgła: gęstnieje ku północnemu wschodowi (Serce Mgły)
+ for(let i=0;i<40;i++){h+=`<circle cx="${1800+r()*1400}" cy="${r()*900}" r="${120+r()*260}" fill="url(#mg)"/>`}
+ h+=`<circle cx="1600" cy="1050" r="140" fill="#ffe08a" opacity=".25"/>`;
+ E.forEach(([a,b,t,hh])=>{const A=N[a],Bn=N[b];h+=`<path d="M${A.x} ${A.y}Q${(A.x+Bn.x)/2+30} ${(A.y+Bn.y)/2-30} ${Bn.x} ${Bn.y}" stroke="${t==='tor'?'#2a2018':t==='kanał'?'#2d4a6b':'#6b5a42'}" stroke-width="${t==='szosa'?4:2.5}" fill="none" ${t==='ścieżka'?'stroke-dasharray="8 6"':''} ${t==='tor'?'stroke-dasharray="2 10"':''}/>`});
+ N.forEach((n,i)=>{const ic={latarnia:'★',ruiny:'▲',wieś:'⌂',las:'♣',bagno:'≈',tory:'#',przemysł:'⌧',bunkier:'▣',gniazdo:'✸',osada:'◉'}[n.t];
+  h+=`<g class="pin" onclick="node(${i})"><circle cx="${n.x}" cy="${n.y}" r="${i?16:26}" fill="${n.t==='gniazdo'?'#9b2b22':n.t==='osada'?'#2d4a6b':'#efe6cf'}" stroke="#2a2018" stroke-width="2"/><text x="${n.x}" y="${n.y+6}" text-anchor="middle" font-size="${i?16:22}" fill="${n.t==='gniazdo'||n.t==='osada'?'#efe6cf':'#2a2018'}">${ic}</text></g>`});
+ h+=`<g id="squad" class="pin" onclick="sel='sq';$('#route').textContent='Skład Zenka wybrany. Klik w cel.'"><rect x="1640" y="990" width="34" height="34" fill="#8a6a10" stroke="#2a2018" stroke-width="2" transform="rotate(45 1657 1007)"/><text x="1657" y="1013" font-size="14" text-anchor="middle" fill="#fff">Z</text></g><path id="rpath" fill="none" stroke="#9b2b22" stroke-width="5" stroke-dasharray="14 8"/>`;
+ // listy frakcji przypięte do osad
+ N.forEach((n,i)=>{if(n.t==='osada'&&i%2===0)h+=`<g class="pin" onclick="letter(${i})"><rect x="${n.x+14}" y="${n.y-40}" width="34" height="24" fill="#f5ecd6" stroke="#2a2018" transform="rotate(8 ${n.x} ${n.y})"/><path d="M${n.x+14} ${n.y-40}l17 12 17-12" stroke="#2a2018" fill="none" transform="rotate(8 ${n.x} ${n.y})"/></g>`});
+ svg.innerHTML=h;}
+ applyMap();}
+function applyMap(){$('#mapsvg').style.transform=`translate(${mx}px,${my}px) scale(${mz})`}
+(function(){const w=$('#mapwrap');let d=null;w.onmousedown=e=>{if(e.target.closest('.maptools'))return;d=[e.clientX,e.clientY,mx,my]};addEventListener('mouseup',()=>d=null);
+ addEventListener('mousemove',e=>{if(!d)return;const s=$('#stage').getBoundingClientRect().width/1600;mx=d[2]+(e.clientX-d[0])/s;my=d[3]+(e.clientY-d[1])/s;applyMap()});
+ w.onwheel=e=>{e.preventDefault();const nz=Math.max(.3,Math.min(1.6,mz*(e.deltaY<0?1.12:.89)));mx-= (nz-mz)*1200;my-=(nz-mz)*800;mz=nz;applyMap()}})();
+function node(i){const n=N[i];if(sel==='sq'){const A={x:1657,y:1007};$('#rpath').setAttribute('d',`M${A.x} ${A.y}L${n.x} ${n.y}`);const h=Math.round(Math.hypot(n.x-A.x,n.y-A.y)/60*({zwykły:1,forsowny:.7,ukradkowy:1.5,nocny:1.3}[$('#tempo').value]));
+  $('#route').innerHTML=`Cel: ${n.t} · <b>${h} h</b> marszu (${$('#tempo').value})<br>Gęstość Mgły: ${'●'.repeat(n.m)}${'○'.repeat(5-n.m)}<br><button class="btn" style="padding:0 6px" onclick="sel=null;$('#route').textContent='Wyprawa wyruszyła.'">Wyrusz</button>`;return}
+ openPanel(`<h1>${n.t}</h1><div class="mono muted" style="font-size:12px">węzeł ${i} · Mgła ${n.m}/5 · info sprzed 3 dni</div><p class="hand">Zwiad: ${['ślady Ogarów','ruiny z piwnicami','opuszczony wagon','dym z komina'][i%4]}.</p><h2>Ruch</h2><div style="font-size:13px">Drogi: ${E.filter(e=>e[0]===i||e[1]===i).map(e=>e[2]+' '+e[3]+' h').join(' · ')}<br>Transport: ${E.some(e=>(e[0]===i||e[1]===i)&&e[2]==='tor')?'drezyna (Nabój)':'pieszo, wóz'}</div>`)}
+function letter(i){openPanel(`<h1>List</h1><div class="paper" style="padding:12px;transform:rotate(-1deg)"><span class="hand">„Do Latarni. Gildia Solna proponuje: 20 soli za 10 paliwa co tydzień. Odpowiedzcie przez naszego faktora.”</span></div><h2>Odpowiedź</h2><button class="btn">Przyjąć umowę</button> <button class="btn">Targować się</button> <button class="btn red">Odmówić</button><h2>Relacja</h2><div class="bar"><i style="width:55%"></i></div><span class="mono" style="font-size:12px">neutralna (+10)</span>`)}
+
+// RATUSZ
+const AX=[['Władza','Wspólnota','Wódz',-12],['Własność','Kolektyw','Prywatne',8],['Mgła','Czystość','Przemiana',-20]];
+function drawAxes(){$('#axes').innerHTML=AX.map(a=>`<div style="margin:8px 0"><b>${a[0]}</b>${axisBar(a[3]*2,a[1],a[2])}</div>`).join('')}drawAxes();
+const DEC=[['Racje za pracę','Żywność',[0,10,0],'+10% produkcji, słabsi głodują',-4,62],['Wygnanie zmutowanych','Mutanci',[10,0,-20],'Czyści +, Przemienieni −−, Sowa odejdzie',-9,41],['Zmiany 12-godzinne','Praca',[8,0,0],'+20% produkcji, morale −8',-6,35],['Rozstrzeliwanie na miejscu','Prawo i kara',[15,0,0],'Panika gaszona od razu, Legitymacja −2 za każdą egzekucję',-12,22],['Wspólne racje','Żywność',[-5,-10,0],'morale +5, wojownicy bez premii',3,71],['Rejestr mutantów','Mutanci',[5,0,-8],'Kwarantanna skuteczniejsza',-2,55]];
+$('#decrees').innerHTML=DEC.map((d,i)=>`<div class="decree paper" style="left:${(i%2)*300+10}px;top:${Math.floor(i/2)*250+14}px;transform:rotate(${(i%3-1)*1.6}deg)" onmouseenter="prev(${i})" onclick="pass(this,${i})">
+ <div class="mono muted" style="font-size:11px">DEKRET NR ${17+i} · ${d[1]}</div><h3 style="margin-top:4px">${d[0]}</h3><div style="font-size:12px">${d[3]}</div><div class="seal">RADA<br>OSADY</div></div>`).join('');
+function prev(i){const d=DEC[i];$('#preview').innerHTML=`<h1>Podgląd prawa</h1><h3>${d[0]}</h3>${AX.map((a,j)=>`<div class="mono" style="font-size:12px">${a[0]}: ${d[2][j]>0?'→ '+a[2]+' +'+d[2][j]:d[2][j]<0?'← '+a[1]+' '+(-d[2][j]):'bez zmian'}</div>`).join('')}
+ <h2>Kto się ucieszy</h2><div class="bar" style="height:14px"><i style="width:${d[5]}%;background:#2f5d2a"></i></div><span class="mono">${d[5]}% mieszkańców</span>
+ <div style="margin-top:6px">Legitymacja: <b class="${d[4]<0?'red':''}">${d[4]>0?'+':''}${d[4]}</b></div>`}
+function pass(el,i){if(el.querySelector('.stamp'))return;el.insertAdjacentHTML('beforeend',`<div class="stamp hit" style="left:40px;top:40px">${DEC[i][4]<-10?'WYKONAĆ':'UCHWALONO'}</div>`);$('#stage').classList.add('shake');setTimeout(()=>$('#stage').classList.remove('shake'),350);
+ AX.forEach((a,j)=>a[3]=Math.max(-50,Math.min(50,a[3]+DEC[i][2][j])));drawAxes();const L=$('#legnum');L.textContent=+L.textContent+DEC[i][4];$('#legbar').style.width=L.textContent+'%'}
+
+// ZESZYTY
+let curNb='badania';
+const TECH=[['wczesna',[['Lampy oliwne',45,'done'],['Skład paliwa',50]],[['Studnia',50,'done'],['Sidła',45]],[['Dzidy i włócznie',50,'done']],[['Obserwacja Mgły',55]],[['Ratusz',60,'done']]],
+ ['środkowa',[['Ognie strażnicze',70]],[['Barak',75],['Suszarnia',70],['Zielarstwo',70]],[['Warsztat złomiarza',90],['Łuk z rurek',75],['Tarcze z blachy',70],['Częstokół albo Rowy',65,'alt']],[['Sekcja zwłok',80]],[['Cmentarz albo Stos',60,'alt']]],
+ ['późna',[],[],[['Ewidencja zbrojowni',110],['Mielerz',120,'key'],['Glina ogniotrwała',120,'key'],['Miech i palenisko',140,'key']],[['Słuchacze albo Strażnicy ognia',120,'alt']],[['Sztandar',100],['Dalekie wyprawy',120]]]];
+function nb(p){curNb=p;$$('.nbtabs div').forEach(d=>d.classList.toggle('on',d.dataset.p===p));const pg=$('#nbpage');
+ if(p==='badania')pg.innerHTML=`<h1>Epoka Złomu · plansza badań</h1><div class="hand" style="margin-bottom:8px">Badacz: Stary Józef (Nauka 5) · 10 pkt/dzień · w toku: Obserwacja Mgły 30/55</div>
+  <div class="board"><div></div>${['Światło','Przetrwanie','Uzbrojenie','Mgła','Społeczeństwo'].map(h=>`<div class="h">${h}</div>`).join('')}
+  ${TECH.map((r,ri)=>`<div class="h" style="text-align:left;align-self:center">${r[0]}</div>`+r.slice(1).map(col=>`<div>${col.map(t=>`<div class="tech ${t[2]||''} ${ri===2?'lock':''}" style="margin-bottom:5px" onclick="techInfo('${t[0]}',${t[1]})">${t[0]}<div class="mono muted" style="font-size:10px">${t[1]} pkt</div></div>`).join('')}</div>`).join('')).join('')}</div>
+  <div class="hand" style="margin-top:12px">Przełom do Kuźni: Mielerz ★, Glina ★, Miech ★ + Podręcznik kowala (wyprawa) + pierwszy wytop w Dymarce. Potem: odpowiedź Mgły.</div>`;
+ if(p==='bestiariusz')pg.innerHTML=`<h1>Bestiariusz</h1><div style="display:flex;gap:20px">${[['Ogar','zwykły pies, białe oczy, wrzody','Kontra: łamacz, bagnety, osłona tyłów','8 sekcji · znany'],['Krzykacz','krzyk co ~12 s, panika i Odmienność','Kontra: pierwszy cel strzelca, maska','2 sekcje · częściowo'],['???','słychać nocą od bagien','—','nieznany']].map(b=>`<div class="paper" style="flex:1;padding:12px;transform:rotate(${Math.random()*2-1}deg)"><svg viewBox="0 0 120 70" width="100%" height="90"><path d="${b[0]==='Ogar'?'M10 50q10-20 30-18l40-2q20 0 28-14l4 6-6 12q8 10 0 24l-6-12-50 2-8 14-4-12z':b[0]==='Krzykacz'?'M60 10a10 10 0 110 1zM45 30h30l6 36H39z':'M20 40q40-40 80 0q-40 40-80 0z'}" fill="none" stroke="#2a2018" stroke-width="2"/></svg><h3>${b[0]}</h3><div class="hand" style="font-size:13px">${b[1]}</div><div style="font-size:12px;margin-top:4px">${b[2]}</div><div class="mono muted" style="font-size:11px;margin-top:4px">${b[3]}</div></div>`).join('')}</div>`;
+ if(p==='kronika')pg.innerHTML=`<h1>Kronika osady</h1>${['Dzień 1. Rozpaliliśmy latarnię. Dziesięcioro nas.','Dzień 4. Dwa Ogary przy bramie. Zenek trafił pierwszego.','Dzień 9. Krzykacz od bagien. Bartek ranny, wyniesiony.','Dzień 11. Przybyło dwoje z południa. Kwarantanna pełna.','Dzień 12. Paliwa na dwa dni. Wyprawa do stacji benzynowej.'].map((t,i)=>`<p class="hand ink" style="font-size:16px;animation-delay:${i*.5}s">${t}</p>`).join('')}<p class="mono muted">Polegli: brak · Legendy: brak</p>`;}
+$$('.nbtabs div').forEach(d=>d.onclick=()=>nb(d.dataset.p));
+function techInfo(n,c){openPanel(`<h1>${n}</h1><div class="mono">${c} punktów nauki</div><p class="hand">Opis i wymagania z EPOKI.md. Wybory „albo” wykluczają drugą opcję w tej kampanii.</p><button class="btn">Badaj</button>`)}
+
+// WALKA
+const BUB=[[150,150,'Bartek, Ola, trzymać bramę!'],[240,175,'Mam ich!'],[300,215,'Przeładowuję!'],[470,190,'?'],[120,250,'Lewa flanka!'],[260,250,'Nie utrzymam!']];
+function replay(){const b=$('#bubbles');b.innerHTML='';BUB.forEach((q,i)=>setTimeout(()=>{b.insertAdjacentHTML('beforeend',`<div class="bubble" style="left:${q[0]/640*100}%;top:${q[1]/360*100-8}%">${q[2]}</div>`)},i*700))}
+const EV=[[5,'Kontakt: 2 Ogary od zachodu','ok','TRAFNA'],[22,'Rozkaz: trzymać bramę','ok','TRAFNA'],[38,'Trzeci Ogar obchodzi lewą flankę — brak reakcji','bad','BRAK REAKCJI'],[52,'Przegrupowanie po 14 s','bad','SPÓŹNIONA'],[78,'Ogar zabity przez Zenka','ok','TRAFNA'],[92,'Bartek ranny, wyniesiony','ok','TRAFNA']];
+$('#tl').innerHTML=EV.map((e,i)=>`<div class="ev ${e[2]}" style="left:${e[0]}%" onclick="ev(${i})"><span>${e[0]} s</span></div>`).join('');
+function ev(i){const e=EV[i];$('#evdesc').textContent=e[1];const s=$('#rstamp');s.textContent=e[3];s.style.color=s.style.borderColor=e[2]==='ok'?'#2f5d2a':'#c0392b';s.classList.remove('hit');void s.offsetWidth;s.classList.add('hit')}
+
+// STAN OSADY → wygląd interfejsu
+const st=document.documentElement.style;
+$('#dGlod').onchange=e=>st.setProperty('--dirt',e.target.checked?1:0);
+$('#dTk').onchange=e=>st.setProperty('--tissue',e.target.checked?1:0);
+$('#dZagr').onchange=e=>{$('#al3').classList.toggle('hot2',e.target.checked);if(e.target.checked)alarmFx()};
+$('#dLight').oninput=e=>{const v=e.target.value/100;st.setProperty('--lamp',v);st.setProperty('--mist',(1-v)*.9)};
+function alarmFx(){$('#stage').classList.add('shake');setTimeout(()=>$('#stage').classList.remove('shake'),400);$('#al3').classList.add('hot2');setTimeout(()=>$('#al3').classList.remove('hot2'),1200)}
+let mocV=1;function moc(d){mocV=Math.max(1,Math.min(4,mocV+d));const c=[0,8.5,17,34,59.5][mocV];$('#fueldays').textContent=(18/c).toFixed(1).replace('.',',')+' dnia';$('#fuelbar').style.width=Math.min(100,18/c*16)+'%';st.setProperty('--lamp',.4+mocV*.2)}
+let tm=21*60+40;setInterval(()=>{tm=(tm+1)%1440;$('#time').textContent=String(Math.floor(tm/60)).padStart(2,'0')+':'+String(tm%60).padStart(2,'0')},1000);
+go('osada');setTimeout(replay,600);
+</script>
+</body>
+</html>
