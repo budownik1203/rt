@@ -17,7 +17,12 @@ Decyzje z 8 listopada są w `DECYZJE_2026-11-08.md` i w większości wpisane do 
    - obwódki pod jednostkami;
    - scalanie siatek (około 860 wywołań rysowania na 3 postacie i 5 budynków to za dużo);
    - pomiar klatek na sekundę u użytkownika.
-7. **Prototyp walki** (`PLAN_BUDOWY_GRY.md`, etap 1). Mapa to fragment osady.
+7. **Prototyp walki:** symulacja i AI zrobione 8.11 wieczorem (`docs/PROTOTYP_WALKI.md`). Dalej:
+   - atakujący z dowódcą lepsi niż bez;
+   - Formacje i Teren w raporcie;
+   - poziomy 4–5 i charaktery;
+   - podgląd w Godocie.
+   - Do decyzji użytkownika: świecący Nosiciel i Krzykacz, niższa śmiertelność, flary 2 na walkę.
 8. **Pozostałe pytania ★** z `PYTANIA.md`, których nie objęły decyzje z 8 listopada.
 
 

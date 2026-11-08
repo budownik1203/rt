@@ -177,4 +177,9 @@ Ten plik streszcza rozmowy, z których powstał projekt, w kolejności, w jakiej
   - jaśniejszy kontur po stronie światła i załamania z normalnych;
   - obwódki pod jednostkami, faktura ziemi;
   - tryb podglądu z FPS i hybrydą obrotu kamery.
+- **Prototyp walki, symulacja i AI (8 listopada, wieczór):** czysty C# w `game/sim`, deterministyczny, bez Godota. Opis i wyniki w `docs/PROTOTYP_WALKI.md`.
+  - Działają: dowódca w 5 krokach z flarami, instynkt wojownika, 4 gatunki mutantów z własnymi mózgami, Szabrownicy na tym samym AI, raport przypisujący rany decyzjom, podgląd GIF.
+  - Na 1000 walk poziom 3 traci 5 razy mniej zabitych niż poziom 1.
+  - Otwarte: banda z dowódcą poziomu 3 jest słabsza niż bez niego, raport nie wykrywa słabego Terenu i Formacji.
+  - Po drodze poprawione mapa i światło, obniżona śmiertelność; dodane masa, ciosy z boku, fosforyzujący Nosiciel i świecący Krzykacz (do potwierdzenia).
 

@@ -9,3 +9,4 @@ __pycache__/
 *.pyc
 # rozpakowane archiwa grafiki (źródło prawdy to zipy w assets/)
 assets/*/
+game/sim/bench.csv

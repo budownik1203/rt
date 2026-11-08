@@ -1,0 +1,33 @@
+RAPORT: obrona udana po 24 s
+Skład: 0 cali, 6 ranni, 0 wyniesieni lub opatrzeni, 0 zabici
+Wrogowie: 44/44 pokonani (szczury 44)
+Reakcje dowódcy na zagrożenia, które raniły ludzi: 36 trafne, 0 spóźnione, 0 bez reakcji, 0 zaskoczenia
+Ludzie:
+  Mróz (Strzelec): ranny (1); zabici 7, pomoc 0
+  Bartek (Tarczownik): ranny (30); zabici 6, pomoc 0
+  Ola (Rębacz): ranny (14); zabici 3, pomoc 0
+  Zenek (Strzelec): ranny (8); zabici 11, pomoc 0
+  Hania (Sanitariusz): ranny (28); zabici 7, pomoc 0
+  Kuba (Zwiadowca): ranny (1); zabici 4, pomoc 0
+Kluczowe chwile:
+  1 s: pierwszy plan — Watch obserwuj:tyl ← Kuba; Reserve odwod ← Mróz,Bartek,Ola,Zenek,Hania
+  Zmian planu: 7 (w tym nagłych: 0).
+Wnioski:
+  [wyszkolenie składu] Wymiana ciosów na właściwych pozycjach: tu decyduje sprzęt i wyszkolenie ludzi.
+
+Dziennik rozkazów i meldunków:
+     0.5  Mróz: Kuba, pilnuj tyłów!
+     4.4  Mróz: Bartek, Ola, trzymać bramę! | Zenek, Kuba, ogień na bramę!
+     6.3  Bartek: Za dużo ich!
+     6.5  Zenek: Potrzebuję wsparcia!
+     6.7  Ola: Nie utrzymam!
+     7.6  Kuba: Potrzebuję wsparcia!
+    12.1  Mróz: Ola, Bartek, Zenek i Kuba, w krąg przy latarni, twarzą na zewnątrz!
+    12.7  Zenek: Z boku!
+    13.0  Ola: Z boku!
+    13.6  Kuba: Zachodzą od tyłu!
+    14.6  Bartek: Zachodzą od tyłu!
+    16.9  Mróz: Ola, zatrzymać ich na południowym wschodzie! | Bartek, zatrzymać ich na południowym zachodzie! | Zenek, ogień na południowym zachodzie! | Kuba, pilnuj tyłów!
+    18.9  Zenek: Z boku!
+    18.9  Mróz: Bartek, zatrzymać ich na wschodzie! | Kuba, Zenek, ogień na wschodzie!
+    23.0  Mróz: Bartek, trzymać wyłom! | Zenek, ogień na wyłom! | Kuba, pilnuj tyłów!

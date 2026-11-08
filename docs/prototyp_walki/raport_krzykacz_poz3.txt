@@ -1,0 +1,49 @@
+RAPORT: obrona udana po 42 s
+Skład: 2 cali, 2 ranni, 2 wyniesieni lub opatrzeni, 0 zabici
+Wrogowie: 21/21 pokonani (Krzykacz 1, Ogary 4, szczury 16)
+Reakcje dowódcy na zagrożenia, które raniły ludzi: 15 trafne, 0 spóźnione, 0 bez reakcji, 0 zaskoczenia
+Ogień bratobójczy: 1
+Ludzie:
+  Mróz (Strzelec): cały; zabici 4, pomoc 0, trafił swoich 1
+  Bartek (Tarczownik): ciężko ranny, uratowany; zabici 1, pomoc 0
+  Ola (Rębacz): cały; zabici 4, pomoc 0
+  Zenek (Strzelec): ranny (1); zabici 3, pomoc 0
+  Hania (Sanitariusz): ranny (4); zabici 6, pomoc 6
+  Kuba (Zwiadowca): ciężko ranny, uratowany; zabici 0, pomoc 0
+Kluczowe chwile:
+  1 s: pierwszy plan — Watch obserwuj:tyl ← Kuba; Reserve odwod ← Mróz,Bartek,Ola,Zenek,Hania
+  7 s: Bartek padł, pomoc wysłana po 1.1 s, przeżył.
+  Zmian planu: 9 (w tym nagłych: 5).
+Wnioski:
+  [wyszkolenie składu] Wymiana ciosów na właściwych pozycjach: tu decyduje sprzęt i wyszkolenie ludzi.
+  [Taktyka i formacje (szyk i sektory)] Strzelcy strzelali przez plecy swoich: szyk nie zostawił im czystej linii.
+  [wyszkolenie składu] Mróz nie pilnował linii strzału.
+  [Zasoby ludzkie (kto do czego)] Krzykacz krzyknął 3 razy, zanim go zdjęto: strzelcy nie dostali go jako priorytetu.
+
+Dziennik rozkazów i meldunków:
+     0.5  Mróz: Kuba, pilnuj tyłów!
+     4.5  Mróz: Bartek, Ola, Zenek i Kuba, w krąg przy latarni, twarzą na zewnątrz!
+     6.7  Bartek pada (Mróz)
+     7.3  Ola: Za nami!
+     7.6  Kuba pada (Ogar)
+     7.8  Mróz: Hania, do rannego!
+     9.4  Hania wyniósł Bartek pod latarnię
+    11.9  Hania opatrzył Bartek
+    11.9  Hania wyniósł Bartek pod latarnię
+    12.4  Hania wyniósł Kuba pod latarnię
+    13.0  Mróz: Hania, do rannego!
+    13.3  Ola: Za nami!
+    13.7  Krzykacz krzyczy
+    14.2  Mróz: flara (północny wschód (za palisadą))
+    16.3  Hania opatrzył Kuba
+    17.5  Mróz: Zenek, zdjąć Krzykacza przy wyłomie! | Hania, do mnie, w odwodzie!
+    18.1  Hania: Za dużo ich!
+    18.7  Mróz: Hania, do rannego!
+    19.5  Ola: Zachodzą od tyłu!
+    24.0  Mróz: Ola, zatrzymać ich na wschodzie! | Hania, do rannego!
+    24.1  Hania wyniósł Bartek pod latarnię
+    25.7  Krzykacz krzyczy
+    26.1  Mróz: Zenek, pilnuj tyłów! | Hania, do mnie, w odwodzie!
+    30.2  Mróz: Zenek, zdjąć Krzykacza przy wyłomie! | Ola, pilnuj tyłów!
+    32.2  Mróz: flara (wyłom)
+    37.7  Krzykacz krzyczy

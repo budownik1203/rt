@@ -1,0 +1,39 @@
+RAPORT: obrona udana po 49 s
+Skład: 1 cali, 5 ranni, 0 wyniesieni lub opatrzeni, 0 zabici
+Wrogowie: 28/28 pokonani (szczury 20, Krzykacz 1, Ogary 6, Nosiciel 1)
+Reakcje dowódcy na zagrożenia, które raniły ludzi: 15 trafne, 0 spóźnione, 0 bez reakcji, 0 zaskoczenia
+Ludzie:
+  Mróz (Strzelec): ranny (5); zabici 6, pomoc 0
+  Bartek (Tarczownik): ranny (16); zabici 6, pomoc 0
+  Ola (Rębacz): ranny (1); zabici 3, pomoc 0
+  Zenek (Strzelec): ranny (2); zabici 7, pomoc 0
+  Hania (Sanitariusz): cały; zabici 3, pomoc 0
+  Kuba (Zwiadowca): ranny (1); zabici 1, pomoc 0
+Kluczowe chwile:
+  1 s: pierwszy plan — Watch obserwuj:tyl ← Kuba; Reserve odwod ← Mróz,Bartek,Ola,Zenek,Hania
+  38 s: Nosiciel wybuchł z dala od ludzi.
+  Zmian planu: 12 (w tym nagłych: 2).
+Wnioski:
+  [wyszkolenie składu] Wymiana ciosów na właściwych pozycjach: tu decyduje sprzęt i wyszkolenie ludzi.
+
+Dziennik rozkazów i meldunków:
+     0.5  Mróz: Kuba, pilnuj tyłów!
+     4.5  Mróz: Bartek, Ola, trzymać bramę! | Zenek, Kuba, ogień na bramę!
+     6.6  Bartek: Za dużo ich!
+     7.3  Kuba: Nie utrzymam!
+    13.7  Mróz: Ola, Bartek, Zenek i Kuba, w krąg przy latarni, twarzą na zewnątrz!
+    21.6  Krzykacz krzyczy
+    21.7  Mróz: flara (wyłom)
+    23.1  Ola: Za nami!
+    23.6  Zenek: Za nami!
+    25.4  Mróz: Kuba, Zenek, zdjąć Krzykacza przy wyłomie!
+    30.8  Mróz: Zenek, Kuba, do kręgu!
+    34.1  Krzykacz krzyczy
+    34.3  Bartek: Potrzebuję wsparcia!
+    35.3  Mróz: flara (wschód (za palisadą))
+    36.5  Mróz: Zenek, Kuba, Nosiciel na wschodzie, strzelać z daleka!
+    36.6  Zenek: Za nami!
+    37.2  Ola: Zachodzą od tyłu!
+    38.2  Nosiciel wybucha (1.00 światła)
+    41.9  Mróz: Zenek, Kuba, zdjąć Krzykacza przy wyłomie!
+    46.0  Mróz: Zenek, Kuba, do kręgu!

@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Latarnia.Sim", "Latarnia.Sim\Latarnia.Sim.csproj", "{CDB4CDD3-B137-4B6E-8B6E-54F70A9A1C9F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Latarnia.Sim.Tests", "Latarnia.Sim.Tests\Latarnia.Sim.Tests.csproj", "{D8606D99-2767-42DE-8FB1-38F7B2642CB2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Latarnia.Tools", "Latarnia.Tools\Latarnia.Tools.csproj", "{346C08CD-3A37-4382-8E1B-1F59F16BE095}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CDB4CDD3-B137-4B6E-8B6E-54F70A9A1C9F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CDB4CDD3-B137-4B6E-8B6E-54F70A9A1C9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CDB4CDD3-B137-4B6E-8B6E-54F70A9A1C9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CDB4CDD3-B137-4B6E-8B6E-54F70A9A1C9F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D8606D99-2767-42DE-8FB1-38F7B2642CB2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D8606D99-2767-42DE-8FB1-38F7B2642CB2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D8606D99-2767-42DE-8FB1-38F7B2642CB2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D8606D99-2767-42DE-8FB1-38F7B2642CB2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{346C08CD-3A37-4382-8E1B-1F59F16BE095}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{346C08CD-3A37-4382-8E1B-1F59F16BE095}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{346C08CD-3A37-4382-8E1B-1F59F16BE095}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{346C08CD-3A37-4382-8E1B-1F59F16BE095}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

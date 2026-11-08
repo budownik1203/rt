@@ -1,0 +1,67 @@
+RAPORT: walka nierozstrzygnięta po 360 s
+Skład: 0 cali, 1 ranni, 1 wyniesieni lub opatrzeni, 4 zabici
+Wrogowie: 27/28 pokonani (szczury 20, Ogary 6, Nosiciel 1)
+Reakcje dowódcy na zagrożenia, które raniły ludzi: 0 trafne, 0 spóźnione, 21 bez reakcji, 0 zaskoczenia
+Ludzie:
+  Mróz (Strzelec): ciężko ranny, uratowany; zabici 5, pomoc 0
+  Bartek (Tarczownik): zginął (padł w 32 s); zabici 9, pomoc 0
+  Ola (Rębacz): zginął (padł w 55 s); zabici 2, pomoc 0
+  Zenek (Strzelec): ranny (1); zabici 2, pomoc 0
+  Hania (Sanitariusz): zginął (padł w 61 s); zabici 1, pomoc 2
+  Kuba (Zwiadowca): zginął (padł w 126 s); zabici 4, pomoc 0
+Kluczowe chwile:
+  34 s: Skład Mroza: dowódca Mróz wyłączony, chaos
+  39 s: Skład Mroza: dowodzenie przejmuje Kuba (poziom 1 (Kadry 1, Teren 1, Formacje 1))
+Wnioski:
+  [poziom dowódcy (tempo decyzji)] Nikt nie dowodził: każdy walczył na własną rękę, bez podziału na zadania.
+  [poziom dowódcy (tempo decyzji)] Krzykacz krzyknął 29 razy, zanim go zdjęto: strzelcy nie dostali go jako priorytetu.
+  [poziom dowódcy (tempo decyzji)] Bartek wykrwawił się: nikt nie wysłał do niego pomocy.
+  [poziom dowódcy (tempo decyzji)] Ola wykrwawił się: nikt nie wysłał do niego pomocy.
+
+Dziennik rozkazów i meldunków:
+     5.6  Bartek: Za dużo ich!
+     5.8  Ola: Za dużo ich!
+    12.8  Bartek: Nie utrzymam!
+    16.5  Krzykacz krzyczy
+    28.5  Krzykacz krzyczy
+    31.7  Nosiciel wybucha (0.41 światła)
+    31.7  Bartek pada (Nosiciel)
+    33.3  Kuba: Potrzebuję wsparcia!
+    33.9  Mróz pada (Ogar)
+    34.0  Skład Mroza: dowódca Mróz wyłączony, chaos
+    35.3  Hania opatrzył Bartek
+    37.6  Hania: Potrzebuję wsparcia!
+    38.6  Skład Mroza: dowodzenie przejmuje Kuba (poziom 1 (Kadry 1, Teren 1, Formacje 1))
+    40.6  Krzykacz krzyczy
+    43.6  Hania opatrzył Mróz
+    52.6  Krzykacz krzyczy
+    55.4  Ola pada (?)
+    60.8  Hania pada (Ogar)
+    64.7  Krzykacz krzyczy
+    76.7  Krzykacz krzyczy
+    88.7  Krzykacz krzyczy
+   100.7  Krzykacz krzyczy
+   112.7  Krzykacz krzyczy
+   124.7  Krzykacz krzyczy
+   125.9  Kuba pada (?)
+   125.9  Skład Mroza: dowódca Kuba wyłączony, chaos
+   129.3  Skład Mroza: dowodzenie przejmuje Zenek (poziom 1 (Kadry 1, Teren 1, Formacje 1))
+   136.7  Krzykacz krzyczy
+   148.7  Krzykacz krzyczy
+   160.7  Krzykacz krzyczy
+   172.7  Krzykacz krzyczy
+   184.7  Krzykacz krzyczy
+   196.7  Krzykacz krzyczy
+   208.7  Krzykacz krzyczy
+   220.7  Krzykacz krzyczy
+   232.7  Krzykacz krzyczy
+   244.7  Krzykacz krzyczy
+   256.7  Krzykacz krzyczy
+   269.6  Krzykacz krzyczy
+   281.7  Krzykacz krzyczy
+   293.7  Krzykacz krzyczy
+   305.7  Krzykacz krzyczy
+   317.8  Krzykacz krzyczy
+   329.8  Krzykacz krzyczy
+   341.9  Krzykacz krzyczy
+   353.9  Krzykacz krzyczy
